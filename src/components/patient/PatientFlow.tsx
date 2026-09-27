@@ -19,6 +19,8 @@ export interface FlowState {
   docs: Record<string, DocState>;
   medicaidStatus: MedicaidScreening;
   applicationId?: string;
+  prefilled?: boolean;
+  answered?: string[];
 }
 
 export interface StepProps {
@@ -67,7 +69,7 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
   const loadDemo = (id: string) => {
     const c = demoCases.find((d) => d.id === id);
     if (!c) return setState(emptyState);
-    setState({ patient: c.patient, bills: c.bills, answers: c.answers, docs: c.docs, medicaidStatus: c.medicaidStatus });
+    setState({ patient: c.patient, bills: c.bills, answers: c.answers, docs: c.docs, medicaidStatus: c.medicaidStatus, prefilled: true });
   };
 
   const { name, Component } = steps[step];
