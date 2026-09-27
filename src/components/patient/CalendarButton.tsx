@@ -1,9 +1,11 @@
 "use client";
 
 import { CalendarPlus } from "lucide-react";
+import { useLang } from "@/lib/i18n";
 
 // All-day .ics event with a reminder two days before; works with Apple, Google and Outlook calendars.
 export default function CalendarButton({ date, title, details }: { date: string; title: string; details: string }) {
+  const { tr } = useLang();
   const add = () => {
     const d = date.slice(0, 10).replaceAll("-", "");
     const end = new Date(new Date(`${date.slice(0, 10)}T00:00:00Z`).getTime() + 86_400_000).toISOString().slice(0, 10).replaceAll("-", "");
@@ -23,7 +25,7 @@ export default function CalendarButton({ date, title, details }: { date: string;
   };
   return (
     <button type="button" onClick={add} className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 hover:text-teal-900">
-      <CalendarPlus className="h-4 w-4" aria-hidden /> Add to my calendar
+      <CalendarPlus className="h-4 w-4" aria-hidden /> {tr("Add to my calendar", "Agregar a mi calendario")}
     </button>
   );
 }

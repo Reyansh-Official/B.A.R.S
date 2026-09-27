@@ -41,6 +41,7 @@ export async function POST(request: Request) {
     events: [{ type: "submitted", at: now, missingCount: screening.readiness.missing.length }],
     submittedAt: now,
     updatedAt: now,
+    lang: body.lang === "es" ? "es" : "en",
   };
 
   // Reminders only go to a phone the patient proved they control with a one-time code.
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
   await insertApplications(createAdminClient(), [app], hashToken(accessToken), policyId);
   if (app.phoneVerifiedAt) {
     const base = process.env.BARS_PUBLIC_URL ?? new URL(request.url).origin;
-    after(() => optIn(app, app.patient.phone, `${base}/h/${app.hospitalId}/a/${app.id}?t=${accessToken}`).catch((e) => console.error("Reminder opt-in failed", e)));
+    after(() => optIn(app, app.patient.phone, `${base}/h/${app.hospitalId}/a/${app.id}?t=${accessToken}${app.lang === "es" ? "&lang=es" : ""}`).catch((e) => console.error("Reminder opt-in failed", e)));
   }
   return Response.json({ id: app.id, accessToken }, { status: 201 });
 }

@@ -1,16 +1,18 @@
 import { Card } from "@/components/ui";
 import type { Bill } from "@/lib/types";
+import { useLang } from "@/lib/i18n";
 import type { StepProps } from "../PatientFlow";
 import Nav from "./Nav";
 
 const fields = [
-  { key: "billerName", label: "Billed by", type: "text" },
-  { key: "accountNumber", label: "Account number", type: "text" },
-  { key: "serviceDate", label: "Date of service", type: "date" },
-  { key: "amountOwed", label: "Amount you owe", type: "number" },
+  { key: "billerName", label: "Billed by", es: "Facturado por", type: "text" },
+  { key: "accountNumber", label: "Account number", es: "Número de cuenta", type: "text" },
+  { key: "serviceDate", label: "Date of service", es: "Fecha del servicio", type: "date" },
+  { key: "amountOwed", label: "Amount you owe", es: "Cantidad que debe", type: "number" },
 ] as const;
 
 export default function Confirm({ state, update, next, back }: StepProps) {
+  const { tr } = useLang();
   const edit = (id: string, key: keyof Bill, raw: string) =>
     update({
       bills: state.bills.map((b) =>
@@ -24,19 +26,19 @@ export default function Confirm({ state, update, next, back }: StepProps) {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-slate-900">Is this right?</h1>
-      <p className="text-slate-600">We read these from your bill. Fix anything that doesn&apos;t match.</p>
+      <h1 className="text-2xl font-bold text-slate-900">{tr("Is this right?", "¿Es correcto?")}</h1>
+      <p className="text-slate-600">{tr("We read these from your bill. Fix anything that doesn't match.", "Leímos estos datos de su factura. Corrija lo que no coincida.")}</p>
       {state.bills.map((b, i) => (
         <Card key={b.id}>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Bill {i + 1}</p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{tr("Bill", "Factura")} {i + 1}</p>
           <div className="flex flex-col gap-3">
             {fields.map((f) => {
               const unsure = b.uncertainFields?.includes(f.key);
               return (
                 <label key={f.key} className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-slate-700">
-                    {f.label}
-                    {unsure && <span className="ml-2 text-amber-700">Please check</span>}
+                    {tr(f.label, f.es)}
+                    {unsure && <span className="ml-2 text-amber-700">{tr("Please check", "Revise por favor")}</span>}
                   </span>
                   <input
                     type={f.type}
@@ -52,8 +54,8 @@ export default function Confirm({ state, update, next, back }: StepProps) {
           </div>
         </Card>
       ))}
-      {!complete && <p className="text-sm text-amber-800">Each bill needs who billed you, the date of service, and the amount.</p>}
-      <Nav next={next} back={back} nextLabel="Looks right" nextDisabled={!complete} />
+      {!complete && <p className="text-sm text-amber-800">{tr("Each bill needs who billed you, the date of service, and the amount.", "Cada factura necesita quién le facturó, la fecha del servicio y la cantidad.")}</p>}
+      <Nav next={next} back={back} nextLabel={tr("Looks right", "Todo está bien")} nextDisabled={!complete} />
     </>
   );
 }

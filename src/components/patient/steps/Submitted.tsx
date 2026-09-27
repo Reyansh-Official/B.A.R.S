@@ -1,11 +1,13 @@
 import ApplicationStatus from "../ApplicationStatus";
+import { useLang } from "@/lib/i18n";
 import type { StepProps } from "../PatientFlow";
 
 export default function Submitted({ policies, state }: StepProps) {
+  const { tr } = useLang();
   const apps = state.applications ?? [];
   return (
     <>
-      <h1 className="text-2xl font-bold text-slate-900">Sent to {apps.length > 1 ? `${apps.length} hospitals` : "a counselor"}</h1>
+      <h1 className="text-2xl font-bold text-slate-900">{apps.length > 1 ? tr(`Sent to ${apps.length} hospitals`, `Enviada a ${apps.length} hospitales`) : tr("Sent to a counselor", "Enviada a un consejero")}</h1>
       {apps.map((a, i) => {
         const policy = policies[a.hospitalId];
         const link = `/h/${a.hospitalId}/a/${a.id}?t=${a.accessToken}`;
@@ -15,10 +17,11 @@ export default function Submitted({ policies, state }: StepProps) {
             {i === 0 && policy ? (
               <ApplicationStatus id={a.id} token={a.accessToken} policy={policy} />
             ) : (
-              <p className="text-sm text-slate-600">Reference {a.id}. Their counselors will review your {a.hospitalName} bill separately.</p>
+              <p className="text-sm text-slate-600">{tr(`Reference ${a.id}. Their counselors will review your ${a.hospitalName} bill separately.`, `Referencia ${a.id}. Sus consejeros revisarán aparte su factura de ${a.hospitalName}.`)}</p>
             )}
             <p className="text-xs text-slate-500">
-              Save this private link (don&apos;t share it): <a className="underline" href={link}>{a.hospitalName} status page</a>
+              {tr("Save this private link (don't share it):", "Guarde este enlace privado (no lo comparta):")}{" "}
+              <a className="underline" href={link}>{tr(`${a.hospitalName} status page`, `Página de estado de ${a.hospitalName}`)}</a>
             </p>
           </section>
         );

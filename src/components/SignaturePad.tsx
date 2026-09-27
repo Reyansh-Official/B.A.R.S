@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLang } from "@/lib/i18n";
 
 export default function SignaturePad({ label, onChange }: { label: string; onChange: (dataUrl: string | null) => void }) {
+  const { tr } = useLang();
   const canvas = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const hasInk = useRef(false);
@@ -36,7 +38,7 @@ export default function SignaturePad({ label, onChange }: { label: string; onCha
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-700">{label}</span>
-        <button type="button" onClick={clear} className="text-sm text-slate-500 underline">Clear</button>
+        <button type="button" onClick={clear} className="text-sm text-slate-500 underline">{tr("Clear", "Borrar")}</button>
       </div>
       <canvas
         ref={canvas}
@@ -61,7 +63,7 @@ export default function SignaturePad({ label, onChange }: { label: string; onCha
           if (hasInk.current) onChange(canvas.current!.toDataURL("image/png"));
         }}
       />
-      <span className="text-xs text-slate-400">Sign with your finger or mouse</span>
+      <span className="text-xs text-slate-400">{tr("Sign with your finger or mouse", "Firme con el dedo o el ratón")}</span>
     </div>
   );
 }

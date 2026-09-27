@@ -2,6 +2,7 @@
 
 import { MessageCircleQuestion, Send, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useLang } from "@/lib/i18n";
 
 interface Cite {
   doc: number;
@@ -20,14 +21,15 @@ interface Turn {
   error?: boolean;
 }
 
-const SUGGESTIONS = [
-  "Can they send my bill to collections while I apply?",
-  "Why is my doctor's bill separate?",
-  "I don't have pay stubs. What can I do?",
-  "What happens if I'm denied?",
+const SUGGESTIONS: [string, string][] = [
+  ["Can they send my bill to collections while I apply?", "¿Pueden mandar mi factura a cobranza mientras hago la solicitud?"],
+  ["Why is my doctor's bill separate?", "¿Por qué la factura de mi médico es aparte?"],
+  ["I don't have pay stubs. What can I do?", "No tengo talones de pago. ¿Qué puedo hacer?"],
+  ["What happens if I'm denied?", "¿Qué pasa si me la niegan?"],
 ];
 
 function Answer({ turn }: { turn: Turn }) {
+  const { tr } = useLang();
   if (!turn.segments) return <p className="whitespace-pre-wrap">{turn.text}</p>;
   return (
     <p className="whitespace-pre-wrap">
@@ -43,10 +45,10 @@ function Answer({ turn }: { turn: Turn }) {
                 href={`${turn.docs?.[c.doc]?.url ?? "#"}${c.page ? `#page=${c.page}` : ""}`}
                 target="_blank"
                 rel="noreferrer"
-                title={`Policy says: "${c.quote}"`}
+                title={`${tr("Policy says", "La póliza dice")}: "${c.quote}"`}
                 className="mx-0.5 inline-block rounded bg-teal-100 px-1.5 text-[11px] font-semibold not-italic text-teal-800 no-underline"
               >
-                {c.page ? `p.${c.page}` : "source"}
+                {c.page ? `p.${c.page}` : tr("source", "fuente")}
               </a>
             ))}{" "}
           </span>
@@ -60,6 +62,7 @@ function Answer({ turn }: { turn: Turn }) {
 
 // Answers come only from the hospital's approved policy documents, with page citations; it explains, never decides.
 export default function AskChat({ hospitalId, hospitalName, phone, context }: { hospitalId: string; hospitalName: string; phone: string; context: string }) {
+  const { tr } = useLang();
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
@@ -87,7 +90,7 @@ export default function AskChat({ hospitalId, hospitalName, phone, context }: { 
       });
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({}));
-        patchLast({ text: data.error ?? `Sorry, I couldn't answer that. You can call ${phone}.`, error: true });
+        patchLast({ text: tr(data.error ?? `Sorry, I couldn't answer that. You can call ${phone}.`, `Lo siento, no pude responder eso. Puede llamar al ${phone}.`), error: true });
         return;
       }
       const reader = res.body.getReader();
@@ -109,7 +112,7 @@ export default function AskChat({ hospitalId, hospitalName, phone, context }: { 
         }
       }
     } catch {
-      patchLast({ text: `Something went wrong. You can call ${phone}.`, error: true });
+      patchLast({ text: tr(`Something went wrong. You can call ${phone}.`, `Algo salió mal. Puede llamar al ${phone}.`), error: true });
     } finally {
       setBusy(false);
     }
@@ -121,27 +124,27 @@ export default function AskChat({ hospitalId, hospitalName, phone, context }: { 
         onClick={() => setOpen(true)}
         className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-teal-700 px-4 py-3 font-semibold text-white shadow-lg hover:bg-teal-800"
       >
-        <MessageCircleQuestion className="h-5 w-5" aria-hidden /> Ask about my bill
+        <MessageCircleQuestion className="h-5 w-5" aria-hidden /> {tr("Ask about my bill", "Preguntar sobre mi factura")}
       </button>
     );
   }
 
   return (
-    <div role="dialog" aria-label="Ask about my bill" className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[85vh] w-full max-w-md flex-col rounded-t-3xl border border-slate-200 bg-white shadow-2xl sm:bottom-5 sm:right-5 sm:left-auto sm:mx-0 sm:rounded-3xl">
+    <div role="dialog" aria-label={tr("Ask about my bill", "Preguntar sobre mi factura")} className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[85vh] w-full max-w-md flex-col rounded-t-3xl border border-slate-200 bg-white shadow-2xl sm:bottom-5 sm:right-5 sm:left-auto sm:mx-0 sm:rounded-3xl">
       <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
         <div>
-          <p className="font-semibold text-slate-900">Ask about my bill</p>
-          <p className="text-xs text-slate-500">Answers come from {hospitalName}&apos;s published policy. A counselor makes the final decision.</p>
+          <p className="font-semibold text-slate-900">{tr("Ask about my bill", "Preguntar sobre mi factura")}</p>
+          <p className="text-xs text-slate-500">{tr(`Answers come from ${hospitalName}'s published policy. A counselor makes the final decision.`, `Las respuestas vienen de la póliza publicada de ${hospitalName}. Un consejero toma la decisión final.`)}</p>
         </div>
-        <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-full p-1 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+        <button onClick={() => setOpen(false)} aria-label={tr("Close", "Cerrar")} className="rounded-full p-1 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto p-4 text-sm">
         {turns.length === 0 && (
           <div className="flex flex-col gap-2">
-            <p className="text-slate-600">Try asking:</p>
-            {SUGGESTIONS.map((s) => (
-              <button key={s} onClick={() => ask(s)} className="rounded-xl border border-slate-200 px-3 py-2 text-left text-slate-700 hover:bg-slate-50">{s}</button>
+            <p className="text-slate-600">{tr("Try asking:", "Pruebe a preguntar:")}</p>
+            {SUGGESTIONS.map(([en, es]) => (
+              <button key={en} onClick={() => ask(tr(en, es))} className="rounded-xl border border-slate-200 px-3 py-2 text-left text-slate-700 hover:bg-slate-50">{tr(en, es)}</button>
             ))}
           </div>
         )}
@@ -150,7 +153,7 @@ export default function AskChat({ hospitalId, hospitalName, phone, context }: { 
             <div key={i} className="ml-auto max-w-[85%] rounded-2xl bg-teal-700 px-3 py-2 text-white">{t.text}</div>
           ) : (
             <div key={i} className={`max-w-[95%] rounded-2xl px-3 py-2 ${t.error ? "bg-rose-50 text-rose-800" : "bg-slate-100 text-slate-900"}`}>
-              {t.text ? <Answer turn={t} /> : <span className="inline-flex items-center gap-2 text-slate-500"><span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" /> Reading the policy…</span>}
+              {t.text ? <Answer turn={t} /> : <span className="inline-flex items-center gap-2 text-slate-500"><span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" /> {tr("Reading the policy…", "Leyendo la póliza…")}</span>}
             </div>
           ),
         )}
@@ -162,13 +165,13 @@ export default function AskChat({ hospitalId, hospitalName, phone, context }: { 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           maxLength={500}
-          placeholder="Ask in any language…"
-          aria-label="Your question"
+          placeholder={tr("Ask in any language…", "Pregunte en cualquier idioma…")}
+          aria-label={tr("Your question", "Su pregunta")}
           className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-base"
         />
-        <button disabled={busy || !input.trim()} aria-label="Send" className="rounded-xl bg-teal-700 px-3 text-white disabled:opacity-50"><Send className="h-4 w-4" /></button>
+        <button disabled={busy || !input.trim()} aria-label={tr("Send", "Enviar")} className="rounded-xl bg-teal-700 px-3 text-white disabled:opacity-50"><Send className="h-4 w-4" /></button>
       </form>
-      <p className="px-4 pb-3 text-[11px] text-slate-400">Not legal advice. Don&apos;t share your Social Security number here. Questions? Call {phone}.</p>
+      <p className="px-4 pb-3 text-[11px] text-slate-400">{tr(`Not legal advice. Don't share your Social Security number here. Questions? Call ${phone}.`, `No es asesoría legal. No comparta aquí su número de Seguro Social. ¿Preguntas? Llame al ${phone}.`)}</p>
     </div>
   );
 }

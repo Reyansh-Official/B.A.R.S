@@ -3,15 +3,16 @@ import { Badge, Button, Card } from "@/components/ui";
 import { toUploadedFile } from "@/lib/files";
 import { screen, screenEligibility } from "@/lib/rules";
 import type { Alternative, DocCheck, DocState, RequiredDoc, UploadedFile } from "@/lib/types";
+import { Auto, useLang } from "@/lib/i18n";
 import type { StepProps } from "../PatientFlow";
 import Nav from "./Nav";
 import DocForm from "./DocForm";
 
 const statusLabel = {
-  provided: { tone: "good", text: "Added" },
-  alternative: { tone: "good", text: "Added (alternative)" },
-  missing: { tone: "warn", text: "Needed" },
-  counselor: { tone: "info", text: "Counselor will help" },
+  provided: { tone: "good", text: "Added", es: "Agregado" },
+  alternative: { tone: "good", text: "Added (alternative)", es: "Agregado (alternativa)" },
+  missing: { tone: "warn", text: "Needed", es: "Se necesita" },
+  counselor: { tone: "info", text: "Counselor will help", es: "El consejero le ayudará" },
 } as const;
 
 const SIGNATURES = ["signature", "spouse_signature"];
@@ -53,22 +54,23 @@ const verdictStyle = {
 
 function CheckResult({ check, statedIncome, incomeHint, onUpdateIncome }: { check: DocCheck; statedIncome: number; incomeHint?: (n: number) => string; onUpdateIncome?: (n: number) => void }) {
   const v = verdictStyle[check.verdict];
+  const { tr } = useLang();
   const pending = check.suggestedIncome != null && check.suggestedIncome > statedIncome;
   return (
     <div className={`mt-1 rounded-lg border p-2 text-sm ${v.cls}`}>
-      <p className="font-medium"><span aria-hidden>{v.icon}</span> {check.summary}</p>
-      {check.details.map((d) => <p key={d}>{d}</p>)}
+      <p className="font-medium"><span aria-hidden>{v.icon}</span> <Auto>{check.summary}</Auto></p>
+      {check.details.map((d) => <p key={d}><Auto>{d}</Auto></p>)}
       {check.suggestedIncome != null && onUpdateIncome && (
         pending ? (
           <div className="mt-2 flex flex-col gap-1">
             <button className="self-start rounded-lg bg-amber-600 px-3 py-1.5 font-semibold text-white" onClick={() => onUpdateIncome(check.suggestedIncome!)}>
-              Update my income to ${check.suggestedIncome.toLocaleString()}
+              {tr("Update my income to", "Cambiar mis ingresos a")} ${check.suggestedIncome.toLocaleString()}
             </button>
             {incomeHint && <p className="text-xs">{incomeHint(check.suggestedIncome)}</p>}
-            <p className="text-xs">If others in your household also earn money, add theirs too. Or leave it and your counselor will sort it out.</p>
+            <p className="text-xs">{tr("If others in your household also earn money, add theirs too. Or leave it and your counselor will sort it out.", "Si otras personas en su hogar también ganan dinero, sume lo de ellas. O déjelo así y su consejero lo resolverá.")}</p>
           </div>
         ) : (
-          <p className="mt-1 font-medium">Income updated ✓</p>
+          <p className="mt-1 font-medium">{tr("Income updated ✓", "Ingresos actualizados ✓")}</p>
         )
       )}
     </div>
@@ -97,11 +99,12 @@ function FilePicker({ label, onFiles, variant = "primary" }: { label: string; on
 }
 
 function AddMore({ onFiles }: { onFiles: (files: File[]) => void }) {
+  const { tr } = useLang();
   const input = useRef<HTMLInputElement>(null);
   return (
     <>
       <input ref={input} type="file" multiple accept="image/*,application/pdf" className="hidden" onChange={(e) => { const files = [...(e.target.files ?? [])]; e.target.value = ""; if (files.length) onFiles(files); }} />
-      <button className="text-sm text-teal-700 underline" onClick={() => input.current?.click()}>+ Add another file</button>
+      <button className="text-sm text-teal-700 underline" onClick={() => input.current?.click()}>{tr("+ Add another file", "+ Agregar otro archivo")}</button>
     </>
   );
 }
@@ -116,6 +119,7 @@ export interface DocCardProps {
 }
 
 export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, samples }: DocCardProps) {
+  const { tr } = useLang();
   const [mode, setMode] = useState<"idle" | "alternatives" | "counselor">("idle");
   const [form, setForm] = useState<Alternative | null>(null);
   const [explain, setExplain] = useState("");
@@ -161,21 +165,21 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
   return (
     <Card>
       <div className="flex items-start justify-between gap-3">
-        <p className="font-semibold">{doc.label}</p>
-        <Badge tone={label.tone}>{label.text}</Badge>
+        <p className="font-semibold"><Auto>{doc.label}</Auto></p>
+        <Badge tone={label.tone}>{tr(label.text, label.es)}</Badge>
       </div>
-      {doc.note && doc.status === "missing" && <p className="mt-1 text-sm text-slate-500">{doc.note}</p>}
+      {doc.note && doc.status === "missing" && <p className="mt-1 text-sm text-slate-500"><Auto>{doc.note}</Auto></p>}
 
       {doc.status !== "missing" && (
         <div className="mt-2 text-sm text-slate-700">
-          {doc.statusNote && <p>{doc.statusNote}</p>}
+          {doc.statusNote && <p><Auto>{doc.statusNote}</Auto></p>}
           {doc.files?.map((f, i) => {
             const check = doc.checks?.find((c) => c.fileName === f.name);
             return (
               <div key={i} className="mt-2">
                 <p className="flex items-center justify-between gap-2 text-slate-500">
                   <span>📎 {f.name}</span>
-                  <button className="text-xs underline" onClick={() => removeFile(i)}>Remove</button>
+                  <button className="text-xs underline" onClick={() => removeFile(i)}>{tr("Remove", "Quitar")}</button>
                 </p>
                 {check && <CheckResult check={check} statedIncome={statedIncome} incomeHint={incomeHint} onUpdateIncome={onUpdateIncome} />}
               </div>
@@ -184,26 +188,26 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
           {checking && (
             <p className="mt-2 inline-flex items-center gap-2 text-slate-500">
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-teal-700 border-t-transparent" />
-              Checking your document…
+              {tr("Checking your document…", "Revisando su documento…")}
             </p>
           )}
           <div className="mt-2 flex gap-4">
             {doc.files && doc.files.length > 0 && <AddMore onFiles={addMore} />}
-            <button className="text-sm text-teal-700 underline" onClick={() => set(undefined)}>Change</button>
+            <button className="text-sm text-teal-700 underline" onClick={() => set(undefined)}>{tr("Change", "Cambiar")}</button>
           </div>
         </div>
       )}
 
       {doc.status === "missing" && mode === "idle" && (
         <div className="mt-3 flex flex-col gap-2">
-          <FilePicker label={busy ? "Adding…" : "Upload or take a photo"} onFiles={(f) => upload(f)} />
-          <Button variant="secondary" onClick={() => setMode("alternatives")}>I don&apos;t have this</Button>
+          <FilePicker label={busy ? tr("Adding…", "Agregando…") : tr("Upload or take a photo", "Subir o tomar una foto")} onFiles={(f) => upload(f)} />
+          <Button variant="secondary" onClick={() => setMode("alternatives")}>{tr("I don't have this", "No tengo esto")}</Button>
         </div>
       )}
 
       {samples && samples.length > 0 && mode === "idle" && (
         <details className="mt-2 text-sm text-slate-500">
-          <summary className="cursor-pointer">Try a sample document</summary>
+          <summary className="cursor-pointer">{tr("Try a sample document", "Probar un documento de ejemplo")}</summary>
           <div className="mt-2 flex flex-wrap gap-2">
             {samples.map((s) => (
               <button key={s.path} disabled={busy || checking} onClick={() => loadSample(s.path)} className="rounded-full border border-slate-300 bg-white px-3 py-1 disabled:opacity-50">
@@ -218,26 +222,26 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
         <div className="mt-3 flex flex-col gap-3 rounded-xl bg-slate-50 p-3">
           {doc.alternatives.length > 0 ? (
             <>
-              <p className="text-sm font-semibold text-slate-800">That&apos;s OK. The hospital also accepts:</p>
+              <p className="text-sm font-semibold text-slate-800">{tr("That's OK. The hospital also accepts:", "Está bien. El hospital también acepta:")}</p>
               {doc.alternatives.map((alt) => (
                 <div key={alt.id} className="rounded-lg border border-slate-200 bg-white p-3">
-                  <p className="font-medium">{alt.label}</p>
-                  {alt.hint && <p className="mb-2 text-sm text-slate-500">{alt.hint}</p>}
+                  <p className="font-medium"><Auto>{alt.label}</Auto></p>
+                  {alt.hint && <p className="mb-2 text-sm text-slate-500"><Auto>{alt.hint}</Auto></p>}
                   {alt.kind === "upload" ? (
-                    <FilePicker variant="secondary" label="Upload this instead" onFiles={(f) => upload(f, alt)} />
+                    <FilePicker variant="secondary" label={tr("Upload this instead", "Subir esto en su lugar")} onFiles={(f) => upload(f, alt)} />
                   ) : (
-                    <Button variant="secondary" onClick={() => setForm(alt)}>Fill it out here</Button>
+                    <Button variant="secondary" onClick={() => setForm(alt)}>{tr("Fill it out here", "Llenarlo aquí")}</Button>
                   )}
                 </div>
               ))}
             </>
           ) : (
-            <p className="text-sm text-slate-700">There&apos;s no substitute for this one, but a counselor can help you get it.</p>
+            <p className="text-sm text-slate-700">{tr("There's no substitute for this one, but a counselor can help you get it.", "Este no tiene sustituto, pero un consejero puede ayudarle a conseguirlo.")}</p>
           )}
           <button className="text-left text-sm font-semibold text-teal-700 underline" onClick={() => setMode("counselor")}>
-            None of these work for me
+            {tr("None of these work for me", "Ninguna de estas opciones me sirve")}
           </button>
-          <button className="text-left text-sm text-slate-500 underline" onClick={() => setMode("idle")}>Back</button>
+          <button className="text-left text-sm text-slate-500 underline" onClick={() => setMode("idle")}>{tr("Back", "Atrás")}</button>
         </div>
       )}
 
@@ -256,20 +260,22 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
       {doc.status === "missing" && mode === "counselor" && (
         <div className="mt-3 flex flex-col gap-2 rounded-xl bg-sky-50 p-3">
           <p className="text-sm text-sky-900">
-            A financial counselor will help you with this. You can also explain over the phone. Missing paperwork alone
-            can&apos;t be a reason to deny you.
+            {tr(
+              "A financial counselor will help you with this. You can also explain over the phone. Missing paperwork alone can't be a reason to deny you.",
+              "Un consejero financiero le ayudará con esto. También puede explicarlo por teléfono. La falta de documentos por sí sola no puede ser motivo para negarle la ayuda.",
+            )}
           </p>
           <textarea
             className="rounded-lg border border-slate-300 bg-white p-2 text-base"
             rows={3}
-            placeholder="Optional: tell them what's going on (e.g. I get paid in cash)"
+            placeholder={tr("Optional: tell them what's going on (e.g. I get paid in cash)", "Opcional: cuénteles su situación (p. ej., me pagan en efectivo)")}
             value={explain}
             onChange={(e) => setExplain(e.target.value)}
           />
           <Button onClick={() => { set({ status: "counselor", note: explain.trim() || "Patient asked for help with this document." }); setMode("idle"); }}>
-            Ask a counselor to help
+            {tr("Ask a counselor to help", "Pedir ayuda a un consejero")}
           </Button>
-          <button className="text-sm text-slate-500 underline" onClick={() => setMode("alternatives")}>Back</button>
+          <button className="text-sm text-slate-500 underline" onClick={() => setMode("alternatives")}>{tr("Back", "Atrás")}</button>
         </div>
       )}
     </Card>
@@ -277,6 +283,7 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
 }
 
 export default function Documents({ policy, primaryBills, state, update, next, back, demoMode }: StepProps) {
+  const { tr } = useLang();
   const { readiness } = screen(policy, primaryBills, state.answers, state.docs, state.medicaidStatus);
   const docs = readiness.documents.filter((d) => !SIGNATURES.includes(d.id));
   const done = docs.filter((d) => d.status !== "missing").length;
@@ -286,11 +293,11 @@ export default function Documents({ policy, primaryBills, state, update, next, b
     const then = screenEligibility(policy, { ...state.answers, annualIncome }, 0);
     const describe = (e: typeof now) =>
       e.status === "presumptive" || (e.status === "potentially_eligible" && e.discountPct === 100)
-        ? "free care"
-        : e.status === "potentially_eligible" ? `a ${e.discountPct}% discount` : "a counselor review";
+        ? tr("free care", "atención gratuita")
+        : e.status === "potentially_eligible" ? tr(`a ${e.discountPct}% discount`, `un ${e.discountPct}% de descuento`) : tr("a counselor review", "una revisión del consejero");
     return describe(now) === describe(then)
-      ? `You'd still likely qualify for ${describe(then)}.`
-      : `Your estimate would change from ${describe(now)} to ${describe(then)}.`;
+      ? tr(`You'd still likely qualify for ${describe(then)}.`, `Probablemente seguiría calificando para ${describe(then)}.`)
+      : tr(`Your estimate would change from ${describe(now)} to ${describe(then)}.`, `Su cálculo cambiaría de ${describe(now)} a ${describe(then)}.`);
   };
 
   const setDoc = (id: string, value: DocState | undefined) => {
@@ -300,11 +307,14 @@ export default function Documents({ policy, primaryBills, state, update, next, b
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-slate-900">Your documents</h1>
+      <h1 className="text-2xl font-bold text-slate-900">{tr("Your documents", "Sus documentos")}</h1>
       <p className="text-slate-600">
         {docs.length === 0
-          ? "Good news: you don't need to send any documents."
-          : `${done} of ${docs.length} taken care of. Don't have something? Tap "I don't have this" to see what else works.`}
+          ? tr("Good news: you don't need to send any documents.", "Buenas noticias: no necesita enviar ningún documento.")
+          : tr(
+              `${done} of ${docs.length} taken care of. Don't have something? Tap "I don't have this" to see what else works.`,
+              `${done} de ${docs.length} listos. ¿Le falta algo? Toque "No tengo esto" para ver qué más sirve.`,
+            )}
       </p>
       {docs.map((d) => (
         <DocCard
@@ -317,8 +327,8 @@ export default function Documents({ policy, primaryBills, state, update, next, b
           samples={demoMode ? sampleDocs[d.id] : undefined}
         />
       ))}
-      <p className="text-sm text-slate-500">You&apos;ll sign the application on the next screen.</p>
-      <Nav next={next} back={back} nextLabel={done < docs.length ? "Continue, I'll finish later" : "Continue"} />
+      <p className="text-sm text-slate-500">{tr("You'll sign the application on the next screen.", "Firmará la solicitud en la siguiente pantalla.")}</p>
+      <Nav next={next} back={back} nextLabel={done < docs.length ? tr("Continue, I'll finish later", "Continuar, terminaré después") : tr("Continue", "Continuar")} />
     </>
   );
 }

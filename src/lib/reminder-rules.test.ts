@@ -38,3 +38,9 @@ test("in review notice and US phone formatting", () => {
   assert.equal(toE164("+1 410 555 0142"), "+14105550142");
   assert.equal(toE164("555-0142"), null);
 });
+
+test("reminders go out in Spanish when the patient chose Spanish", () => {
+  const [welcome] = dueReminders({ ...base, lang: "es" }, "UMMS", "https://x", new Date("2026-09-27"));
+  assert.match(welcome.body, /Se inscribió/);
+  assert.match(welcome.body, /Responda STOP/);
+});

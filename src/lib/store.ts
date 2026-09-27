@@ -41,6 +41,7 @@ export interface Application {
   updatedAt: string;
   sample?: boolean;
   phoneVerifiedAt?: string;
+  lang?: "en" | "es";
 }
 
 // Indexed/filtered fields are real columns; the rest of the application lives in `data` (jsonb).

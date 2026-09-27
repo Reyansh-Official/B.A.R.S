@@ -4,6 +4,7 @@ import { LogoMark } from "@/components/Logo";
 import { useEffect, useState } from "react";
 import type { DemoCase, Patient } from "@/lib/demo";
 import { groupBills, type BillGroup, type BillResolution } from "@/lib/groups";
+import { LangProvider, LangToggle, useLang } from "@/lib/i18n";
 import type { Answers, Bill, DocState, MedicaidScreening, Policy } from "@/lib/types";
 import Welcome from "./steps/Welcome";
 import Upload from "./steps/Upload";
@@ -52,14 +53,14 @@ export interface StepProps {
 }
 
 const steps = [
-  { name: "Welcome", Component: Welcome },
-  { name: "Upload bill", Component: Upload },
-  { name: "Confirm details", Component: Confirm },
-  { name: "Your household", Component: Questions },
-  { name: "Results", Component: Results },
-  { name: "Documents", Component: Documents },
-  { name: "Review & send", Component: Review },
-  { name: "Sent", Component: Submitted },
+  { name: "Welcome", es: "Bienvenida", Component: Welcome },
+  { name: "Upload bill", es: "Subir factura", Component: Upload },
+  { name: "Confirm details", es: "Confirmar datos", Component: Confirm },
+  { name: "Your household", es: "Su hogar", Component: Questions },
+  { name: "Results", es: "Resultados", Component: Results },
+  { name: "Documents", es: "Documentos", Component: Documents },
+  { name: "Review & send", es: "Revisar y enviar", Component: Review },
+  { name: "Sent", es: "Enviada", Component: Submitted },
 ];
 
 const emptyState: FlowState = {
@@ -81,7 +82,18 @@ const emptyState: FlowState = {
   medicaidStatus: "unknown",
 };
 
-export default function PatientFlow({ policy, demoCases, demoMode }: { policy: Policy; demoCases: DemoCase[]; demoMode: boolean }) {
+type FlowProps = { policy: Policy; demoCases: DemoCase[]; demoMode: boolean };
+
+export default function PatientFlow(props: FlowProps) {
+  return (
+    <LangProvider>
+      <Flow {...props} />
+    </LangProvider>
+  );
+}
+
+function Flow({ policy, demoCases, demoMode }: FlowProps) {
+  const { tr, lang } = useLang();
   const [step, setStep] = useState(0);
   const [state, setState] = useState<FlowState>(emptyState);
   const update = (patch: Partial<FlowState>) => setState((s) => ({ ...s, ...patch }));
@@ -102,7 +114,7 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
   const primaryPolicy = (primaryGroup?.hospitalId && policies[primaryGroup.hospitalId]) || policy;
   const primaryBills = primaryGroup?.bills ?? [];
 
-  const { name, Component } = steps[step];
+  const { name, es, Component } = steps[step];
   return (
     <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-4 px-4 pb-24 pt-4">
       <header className="flex items-center justify-between gap-3">
@@ -113,6 +125,8 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
             <p className="text-xs text-slate-500">{primaryPolicy.name}</p>
           </div>
         </div>
+        <div className="flex flex-col items-end gap-1.5">
+        <LangToggle />
         {demoMode && (
         <select
           aria-label="Load demo patient"
@@ -128,6 +142,7 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
           ))}
         </select>
         )}
+        </div>
       </header>
       {step > 0 && (
         <div>
@@ -137,7 +152,7 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
             ))}
           </div>
           <p className="mt-2 text-xs font-medium text-slate-500">
-            Step {step} of {steps.length - 1} · {name}
+            {tr("Step", "Paso")} {step} {tr("of", "de")} {steps.length - 1} · {tr(name, es)}
           </p>
         </div>
       )}
@@ -169,6 +184,9 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
           back={() => setStep((s) => Math.max(s - 1, 0))}
         />
       </div>
+      {lang === "es" && step >= 1 && (
+        <p className="text-center text-xs text-slate-400">Algunos detalles de la póliza del hospital se traducen automáticamente. La versión en inglés es la oficial.</p>
+      )}
     </div>
   );
 }
