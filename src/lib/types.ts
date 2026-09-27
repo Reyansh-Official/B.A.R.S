@@ -52,6 +52,8 @@ export interface Bill {
   serviceDate: string;
   statementDate?: string;
   amountOwed: number;
+  billerPhone?: string;
+  uncertainFields?: string[];
 }
 
 export interface Answers {
