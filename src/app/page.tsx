@@ -28,8 +28,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   return (
     <main className="flex flex-col">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-        <p className="flex items-center gap-2 text-lg font-semibold text-teal-800">
-          <HeartHandshake className="h-6 w-6" aria-hidden /> CareClear
+        <p className="flex items-center gap-2 text-teal-800">
+          <HeartHandshake className="h-6 w-6" aria-hidden />
+          <span className="text-lg font-semibold tracking-wide">B.A.R.S.</span>
+          <span className="hidden text-sm text-slate-500 sm:inline">Bill Accessibility &amp; Relief System</span>
         </p>
         <nav className="flex gap-4 text-sm font-medium text-slate-600">
           <Link href="/counselor" className="hover:text-slate-900">Counselor view</Link>
@@ -105,7 +107,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
       <section className="bg-slate-900 text-white">
         <div className="mx-auto w-full max-w-6xl px-6 py-16">
           <h2 className="text-2xl font-bold">Three separate answers, never one vague &ldquo;maybe&rdquo;</h2>
-          <p className="mt-2 max-w-2xl text-slate-300">An incomplete application doesn&apos;t mean someone doesn&apos;t qualify, so CareClear never mixes the two.</p>
+          <p className="mt-2 max-w-2xl text-slate-300">An incomplete application doesn&apos;t mean someone doesn&apos;t qualify, so B.A.R.S. never mixes the two.</p>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {answers.map((a) => (
               <div key={a.q} className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
@@ -130,7 +132,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Adding a hospital is a policy file, not new code</h2>
           <p className="mt-3 text-slate-600">
-            Nonprofit hospitals must publish their assistance policy, application, and covered-provider list. CareClear turns
+            Nonprofit hospitals must publish their assistance policy, application, and covered-provider list. B.A.R.S. turns
             those into a verified rules file, and each hospital gets its own QR code for its bills.
           </p>
         </div>

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CareClear",
+  title: "B.A.R.S. · Bill Accessibility & Relief System",
   description: "Turn a hospital bill into a review-ready financial-assistance application.",
 };
 

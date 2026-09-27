@@ -14,7 +14,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <main className="flex min-h-full items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="flex items-center gap-2 font-semibold text-teal-800"><HeartHandshake className="h-5 w-5" aria-hidden /> CareClear</p>
+        <p className="flex items-center gap-2 font-semibold tracking-wide text-teal-800"><HeartHandshake className="h-5 w-5" aria-hidden /> B.A.R.S.</p>
+        <p className="mt-0.5 text-xs text-slate-500">Bill Accessibility &amp; Relief System</p>
         <h1 className="mt-4 text-2xl font-bold text-slate-900">Counselor sign-in</h1>
         <p className="mb-6 mt-1 text-sm text-slate-500">For hospital financial counseling staff. Patients don&apos;t need an account.</p>
         {typeof error === "string" && errors[error] && (

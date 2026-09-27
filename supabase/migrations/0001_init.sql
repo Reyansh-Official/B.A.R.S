@@ -1,4 +1,4 @@
--- CareClear schema. Run once in the Supabase SQL editor (or `supabase db push`).
+-- B.A.R.S. (Bill Accessibility & Relief System) schema. Run once in the Supabase SQL editor (or `supabase db push`).
 
 -- Which hospital each counselor account belongs to. Accounts without a row here have no access.
 create table public.counselors (

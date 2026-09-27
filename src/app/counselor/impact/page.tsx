@@ -49,7 +49,7 @@ export default async function ImpactPage() {
       <AutoRefresh ms={5000} />
       <div>
         <h1 className="text-2xl font-bold">Impact</h1>
-        <p className="text-slate-600">Is CareClear getting applications to review-ready with less back-and-forth?</p>
+        <p className="text-slate-600">Is B.A.R.S. getting applications to review-ready with less back-and-forth?</p>
       </div>
       <SampleDataControls sampleCount={m.sampleCount} />
 
@@ -61,7 +61,7 @@ export default async function ImpactPage() {
             <Tile label="Complete on first submission" value={m.completeFirstTimePct == null ? "–" : `${m.completeFirstTimePct}%`} sub="Nothing missing when the patient hit send" />
             <Tile label="Follow-up requests per application" value={m.followUpsPerApp ?? "–"} sub="Counselor requests for more information" />
             <Tile label="Median time to review-ready" value={hours(m.medianHoursToReview)} sub={`From submission to in review · ${m.reviewedCount} reached review`} />
-            <Tile label="Applications" value={m.total} sub="Submitted through CareClear" />
+            <Tile label="Applications" value={m.total} sub="Submitted through B.A.R.S." />
           </section>
 
           <section>

@@ -10,7 +10,7 @@ export default async function StatusPage({ params, searchParams }: PageProps<"/h
   const { policy } = loaded;
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-6">
-      <p className="text-sm font-semibold text-teal-700">CareClear · {policy.name}</p>
+      <p className="text-sm font-semibold text-teal-700">B.A.R.S. · {policy.name}</p>
       <h1 className="text-2xl font-bold text-slate-900">Your application</h1>
       <ApplicationStatus id={id} token={typeof t === "string" ? t : ""} policy={policy} />
     </main>

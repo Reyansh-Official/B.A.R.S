@@ -1,4 +1,6 @@
-# CareClear
+# B.A.R.S.
+
+**Bill Accessibility & Relief System**
 
 Helps patients turn a hospital bill into a complete financial-assistance application, with plain-language eligibility screening, missing-document help, and a counselor review dashboard.
 
