@@ -47,12 +47,14 @@ export default async function AdminHome() {
         <h2 className="mb-3 text-xl font-bold">Recent imports</h2>
         <ul className="flex flex-col gap-2">
           {(imports ?? []).map((i) => (
-            <li key={i.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm">
-              <span className="font-medium">{i.hospital_id}</span>
-              <span className="text-slate-500">{new Date(i.updated_at).toLocaleString()}</span>
-              <Badge tone={importTone[i.status as keyof typeof importTone] ?? "info"}>{i.status.replace("_", " ")}</Badge>
-              {i.policy_id && <Link href={`/admin/policies/${i.policy_id}`} className="text-teal-700 underline">Review draft</Link>}
-              {i.error && <span className="w-full text-rose-700">{i.error}</span>}
+            <li key={i.id} className="grid grid-cols-[1fr_11rem_8rem_7rem] items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm">
+              <span className="truncate font-medium">{i.hospital_id}</span>
+              <span className="tabular-nums text-slate-500">{new Date(i.updated_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+              <span><Badge tone={importTone[i.status as keyof typeof importTone] ?? "info"}>{i.status.replace("_", " ")}</Badge></span>
+              <span className="text-right">
+                {i.policy_id && <Link href={`/admin/policies/${i.policy_id}`} className="text-teal-700 underline">{i.status === "needs_review" ? "Review draft" : "View policy"}</Link>}
+              </span>
+              {i.error && <span className="col-span-4 text-rose-700">{i.error}</span>}
             </li>
           ))}
         </ul>

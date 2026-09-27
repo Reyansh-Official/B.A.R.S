@@ -18,12 +18,13 @@ const statusColor: Record<AppStatus, string> = {
 };
 const statusOrder: AppStatus[] = ["submitted", "info_requested", "responded", "in_review"];
 
+// Fixed label height (two lines) so every number in a row lines up, whether or not its label wraps.
 function Tile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <p className="text-sm text-slate-600">{label}</p>
-      <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">{value}</p>
-      {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5">
+      <p className="line-clamp-2 min-h-10 text-sm font-medium leading-5 text-slate-600">{label}</p>
+      <p className="mt-2 text-3xl font-semibold leading-9 tabular-nums text-slate-900">{value}</p>
+      {sub && <p className="mt-2 text-xs leading-4 text-slate-500">{sub}</p>}
     </div>
   );
 }
@@ -57,21 +58,21 @@ export default async function ImpactPage() {
         <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">No applications yet.</p>
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <Tile label="Complete on first submission" value={m.completeFirstTimePct == null ? "–" : `${m.completeFirstTimePct}%`} sub="Nothing missing when the patient hit send" />
-            <Tile label="Follow-up requests per application" value={m.followUpsPerApp ?? "–"} sub="Counselor requests for more information" />
+          <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Tile label="First-time complete" value={m.completeFirstTimePct == null ? "–" : `${m.completeFirstTimePct}%`} sub="Nothing missing when the patient hit send" />
+            <Tile label="Follow-ups per application" value={m.followUpsPerApp ?? "–"} sub="Counselor requests for more information" />
             <Tile label="Median time to review-ready" value={hours(m.medianHoursToReview)} sub={`From submission to in review · ${m.reviewedCount} reached review`} />
             <Tile label="Applications" value={m.total} sub="Submitted through B.A.R.S." />
           </section>
 
           <section>
-            <h2 className="mb-2 font-semibold">Handled before a counselor stepped in</h2>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-              <Tile label="Documents checked on upload" value={m.docsChecked} sub={`${m.docsFlagged} flagged to the patient right away`} />
-              <Tile label="Missing documents replaced" value={m.alternativesUsed} sub="With alternatives the policy accepts, e.g. FAF 116" />
+            <h2 className="mb-3 font-semibold">Handled before a counselor stepped in</h2>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+              <Tile label="Documents checked" value={m.docsChecked} sub={`On upload · ${m.docsFlagged} flagged to the patient right away`} />
+              <Tile label="Documents replaced" value={m.alternativesUsed} sub="Missing items covered by accepted alternatives, e.g. FAF 116" />
               <Tile label="Physician bills routed" value={m.billsRouted} sub="Sent to the physician group's own program" />
-              <Tile label="Qualified automatically" value={m.presumptive} sub="SNAP, WIC, Medicaid, energy assistance" />
-              <Tile label="Pointed to Medicaid first" value={m.medicaidFirst} sub="Uninsured and within reach of Medicaid, which can cover the whole visit" />
+              <Tile label="Auto-qualified" value={m.presumptive} sub="Through SNAP, WIC, Medicaid, or energy assistance" />
+              <Tile label="Sent to Medicaid first" value={m.medicaidFirst} sub="Uninsured and near Medicaid limits, which can cover the whole visit" />
             </div>
           </section>
 
