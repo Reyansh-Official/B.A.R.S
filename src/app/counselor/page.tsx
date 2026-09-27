@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import AutoRefresh from "@/components/AutoRefresh";
+import SampleDataControls from "@/components/counselor/SampleDataControls";
 import { Badge, money } from "@/components/ui";
 import { counselorStatus } from "@/lib/status";
 import { listApplications } from "@/lib/store";
@@ -13,15 +14,19 @@ export default async function CounselorDashboard() {
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-8">
       <AutoRefresh />
-      <h1 className="text-2xl font-bold">Financial assistance queue</h1>
-      <p className="mb-6 text-slate-600">{apps.length} application(s)</p>
+      <h1 className="text-2xl font-bold">Applications</h1>
+      <p className="mb-4 text-slate-600">{apps.length} application(s)</p>
+      <div className="mb-4 flex flex-col">
+        <SampleDataControls sampleCount={apps.filter((a) => a.sample).length} />
+      </div>
       {apps.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
           No applications yet. Submit one from the patient flow.
         </p>
       ) : (
-        <table className="w-full overflow-hidden rounded-xl bg-white text-left text-sm shadow-sm">
-          <thead className="bg-slate-100 text-slate-600">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="p-3">Patient</th>
               <th className="p-3">Bills</th>
@@ -33,9 +38,9 @@ export default async function CounselorDashboard() {
           </thead>
           <tbody>
             {apps.map((a) => (
-              <tr key={a.id} className="border-t border-slate-100">
+              <tr key={a.id} className="border-t border-slate-100 transition-colors hover:bg-slate-50">
                 <td className="p-3 font-medium">
-                  <Link className="text-teal-700 underline" href={`/counselor/${a.id}`}>{a.patient.name}</Link>
+                  <Link className="text-teal-800 hover:underline" href={`/counselor/${a.id}`}>{a.patient.name}</Link>{a.sample && <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-slate-500">sample</span>}
                 </td>
                 <td className="p-3">{money(a.bills.reduce((s, b) => s + b.amountOwed, 0))} ({a.bills.length})</td>
                 <td className="p-3">{a.screening.eligibility.status.replaceAll("_", " ")} · {a.screening.eligibility.discountPct}%</td>
@@ -46,6 +51,7 @@ export default async function CounselorDashboard() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </main>
   );
