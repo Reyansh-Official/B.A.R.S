@@ -1,0 +1,488 @@
+{
+  "id": "umms",
+  "name": "University of Maryland Medical System",
+  "policy": {
+    "title": "UMMS Financial Assistance Policy (RCS-01)",
+    "revision": "2025-07-01",
+    "income_table_effective": "2025-07-01",
+    "url": "https://www.umms.org/-/media/files/umms/patients-and-visitors/financial-assistance-policy/july-2025/umms-financial-assistance-policy070125-english.pdf",
+    "sliding_scale_url": "https://www.umms.org/-/media/files/umms/patients-and-visitors/financial-assistance-policy/july-2025/2025-sliding-scale.pdf",
+    "application_url": "https://www.umms.org/-/media/files/umms/patients-and-visitors/financial-assistance-application/umms-fa-application-5262022-with-faf-116.pdf",
+    "overview_url": "https://www.umms.org/patients-visitors/umms-financial-assistance/policy-and-form"
+  },
+  "facilities": [
+    {
+      "id": "ummc",
+      "name": "University of Maryland Medical Center",
+      "aliases": [
+        "UMMC",
+        "UM Medical Center",
+        "University of Maryland Medical Ctr"
+      ]
+    },
+    {
+      "id": "mtc",
+      "name": "UM Midtown Campus",
+      "aliases": [
+        "UMMC Midtown Campus",
+        "Midtown"
+      ]
+    },
+    {
+      "id": "umroi",
+      "name": "UM Rehabilitation & Orthopaedic Institute",
+      "aliases": [
+        "UMROI"
+      ]
+    },
+    {
+      "id": "umsjmc",
+      "name": "UM St. Joseph Medical Center",
+      "aliases": [
+        "St. Joseph"
+      ]
+    },
+    {
+      "id": "umbwmc",
+      "name": "UM Baltimore Washington Medical Center",
+      "aliases": [
+        "BWMC"
+      ]
+    },
+    {
+      "id": "umsrh",
+      "name": "UM Shore Regional Health",
+      "aliases": [
+        "Shore Regional",
+        "Shore Medical Center at Dorchester",
+        "Shore Medical Center at Easton"
+      ]
+    },
+    {
+      "id": "umcrmc",
+      "name": "UM Charles Regional Medical Center",
+      "aliases": [
+        "Charles Regional"
+      ]
+    },
+    {
+      "id": "uchs",
+      "name": "UM Upper Chesapeake Health",
+      "aliases": [
+        "Upper Chesapeake"
+      ]
+    },
+    {
+      "id": "umcrh",
+      "name": "UM Capital Region Health",
+      "aliases": [
+        "Capital Region"
+      ]
+    },
+    {
+      "id": "umpn",
+      "name": "UM Physician Network",
+      "aliases": [
+        "UMPN"
+      ],
+      "professional": true
+    }
+  ],
+  "not_covered_billers": [
+    {
+      "id": "fpi",
+      "name": "University of Maryland Faculty Physicians, Inc.",
+      "aliases": [
+        "UM Faculty Physicians",
+        "Faculty Physicians, Inc.",
+        "FPI",
+        "University Physicians, Inc."
+      ],
+      "reason": "Physician fees are billed separately from the hospital. The UMMS policy covers professional charges only from UM Physician Network; UMMC's provider list marks its practitioners as not covered.",
+      "next_step": "Contact the physician group directly about its own financial assistance.",
+      "contact": {
+        "phone": "410-528-5710",
+        "label": "Self-pay patients, physician services"
+      },
+      "source_url": "https://www.umfpi.org/patients-visitors/billing/understanding-your-medical-bill",
+      "verified": "2026-09-26"
+    }
+  ],
+  "provider_lists_url": "https://www.umms.org/patients-visitors/umms-financial-assistance/providers-not-included",
+  "income_rules": {
+    "basis": "Annual household income compared with Maryland Department of Health (MDH) income limits, by household size.",
+    "bands_pct_of_mdh": [
+      200,
+      210,
+      220,
+      230,
+      240,
+      250,
+      260,
+      270,
+      280,
+      300
+    ],
+    "band_discounts_pct": [
+      100,
+      90,
+      80,
+      70,
+      60,
+      50,
+      40,
+      30,
+      20,
+      10
+    ],
+    "above_top_band_discount_pct": 0,
+    "discount_applies_to": "Amount the patient owes after insurance.",
+    "by_household_size": {
+      "1": {
+        "fpl_2025": 15650.0,
+        "mdh_limit_2025": 21612.0,
+        "band_upper_bounds": [
+          43224,
+          45385,
+          47546,
+          49708,
+          51869,
+          54030,
+          56191,
+          58352,
+          60514,
+          64836
+        ]
+      },
+      "2": {
+        "fpl_2025": 21150.0,
+        "mdh_limit_2025": 29196.0,
+        "band_upper_bounds": [
+          58392,
+          61312,
+          64231,
+          67151,
+          70070,
+          72990,
+          75910,
+          78829,
+          81749,
+          87588
+        ]
+      },
+      "3": {
+        "fpl_2025": 26650.0,
+        "mdh_limit_2025": 36780.0,
+        "band_upper_bounds": [
+          73560,
+          77238,
+          80916,
+          84594,
+          88272,
+          91950,
+          95628,
+          99306,
+          102984,
+          110340
+        ]
+      },
+      "4": {
+        "fpl_2025": 32150.0,
+        "mdh_limit_2025": 44376.0,
+        "band_upper_bounds": [
+          88752,
+          93190,
+          97627,
+          102065,
+          106502,
+          110940,
+          115378,
+          119815,
+          124253,
+          133128
+        ]
+      },
+      "5": {
+        "fpl_2025": 37650.0,
+        "mdh_limit_2025": 51960.0,
+        "band_upper_bounds": [
+          103920,
+          109116,
+          114312,
+          119508,
+          124704,
+          129900,
+          135096,
+          140292,
+          145488,
+          155880
+        ]
+      },
+      "6": {
+        "fpl_2025": 43150.0,
+        "mdh_limit_2025": 59544.0,
+        "band_upper_bounds": [
+          119088,
+          125042,
+          130997,
+          136951,
+          142906,
+          148860,
+          154814,
+          160769,
+          166723,
+          178632
+        ]
+      },
+      "7": {
+        "fpl_2025": 48650.0,
+        "mdh_limit_2025": 67152.0,
+        "band_upper_bounds": [
+          134304,
+          141019,
+          147734,
+          154450,
+          161165,
+          167880,
+          174595,
+          181310,
+          188026,
+          201456
+        ]
+      },
+      "8": {
+        "fpl_2025": 54150.0,
+        "mdh_limit_2025": 74736.0,
+        "band_upper_bounds": [
+          149472,
+          156946,
+          164419,
+          171893,
+          179366,
+          186840,
+          194314,
+          201787,
+          209261,
+          224208
+        ]
+      },
+      "9": {
+        "fpl_2025": 59650.0,
+        "mdh_limit_2025": 82320.0,
+        "band_upper_bounds": [
+          164640,
+          172872,
+          181104,
+          189336,
+          197568,
+          205800,
+          214032,
+          222264,
+          230496,
+          246960
+        ]
+      },
+      "10": {
+        "fpl_2025": 65150.0,
+        "mdh_limit_2025": 89904.0,
+        "band_upper_bounds": [
+          179808,
+          188798,
+          197789,
+          206779,
+          215770,
+          224760,
+          233750,
+          242741,
+          251731,
+          269712
+        ]
+      },
+      "11": {
+        "fpl_2025": 70650.0,
+        "mdh_limit_2025": 97488.0,
+        "band_upper_bounds": [
+          194976,
+          204725,
+          214474,
+          224222,
+          233971,
+          243720,
+          253469,
+          263218,
+          272966,
+          292464
+        ]
+      },
+      "12": {
+        "fpl_2025": 76150.0,
+        "mdh_limit_2025": 105072.0,
+        "band_upper_bounds": [
+          210144,
+          220651,
+          231158,
+          241666,
+          252173,
+          262680,
+          273187,
+          283694,
+          294202,
+          315216
+        ]
+      }
+    },
+    "household_definition": "Patient plus spouse, biological/adopted/step children, and anyone claimed as a tax dependent. For a child patient: the child, parents or guardians, siblings, and their tax dependents.",
+    "asset_exclusions": [
+      "First $10,000 of monetary assets",
+      "$150,000 equity in primary residence",
+      "Retirement accounts",
+      "One vehicle",
+      "Maryland 529 accounts"
+    ],
+    "source": "Policy p.2 and p.5-6; Attachment A sliding scale"
+  },
+  "financial_hardship": {
+    "rule": "Medical debt at UMMS facilities over 12 months exceeds 25% of annual household income.",
+    "threshold_pct_of_income": 25,
+    "source": "Policy p.2 and p.8"
+  },
+  "presumptive_eligibility": {
+    "result": "Free care for the specific date of service; no full application needed.",
+    "qualifying": [
+      {
+        "id": "snap",
+        "label": "SNAP (food stamps)"
+      },
+      {
+        "id": "wic",
+        "label": "WIC"
+      },
+      {
+        "id": "energy",
+        "label": "Maryland Energy Assistance Program"
+      },
+      {
+        "id": "medicaid",
+        "label": "Currently has Maryland Medical Assistance (Medicaid)"
+      },
+      {
+        "id": "medicaid_pharmacy",
+        "label": "Medical Assistance pharmacy coverage"
+      },
+      {
+        "id": "slmb",
+        "label": "Specified Low-Income Medicare Beneficiary (SLMB)"
+      },
+      {
+        "id": "homeless",
+        "label": "Experiencing homelessness"
+      },
+      {
+        "id": "bankruptcy",
+        "label": "Bankruptcy"
+      }
+    ],
+    "source": "Policy p.7-8"
+  },
+  "documents": [
+    {
+      "id": "income_proof",
+      "label": "Last 2 pay stubs, or this year's W-2",
+      "applies_when": "employed",
+      "alternatives": [
+        "Other evidence of income",
+        "Most recent federal tax return"
+      ],
+      "note": "If both a tax return and pay stubs are given and they disagree, the most recent one decides.",
+      "source": "Application p.1; policy p.3"
+    },
+    {
+      "id": "tax_return",
+      "label": "Most recent federal tax return (Form 1040)",
+      "applies_when": "self_employed",
+      "alternatives": [
+        "Other evidence of income"
+      ],
+      "source": "Application p.1; policy p.3"
+    },
+    {
+      "id": "unemployment_proof",
+      "label": "Proof of unemployment",
+      "applies_when": "unemployed",
+      "alternatives": [
+        "Statement from the Office of Unemployment Insurance",
+        "Statement from your current source of financial support",
+        "Form FAF 116 (unemployed section)"
+      ],
+      "source": "Policy p.3; application p.3"
+    },
+    {
+      "id": "benefit_income",
+      "label": "Social Security, disability, or other household income statements",
+      "applies_when": "has_benefit_income",
+      "alternatives": [
+        "Other evidence of income"
+      ],
+      "source": "Application p.1"
+    },
+    {
+      "id": "housing",
+      "label": "Mortgage or rent bill (or property tax statement)",
+      "applies_when": "always",
+      "alternatives": [
+        "Written description of your current living situation",
+        "Form FAF 116 (help with food and shelter section)"
+      ],
+      "source": "Policy p.3; application p.1 and p.3"
+    },
+    {
+      "id": "medicaid_letter",
+      "label": "Medicaid approval or denial letter",
+      "applies_when": "applied_for_medicaid",
+      "alternatives": [],
+      "source": "Application p.1-2"
+    },
+    {
+      "id": "signature",
+      "label": "Patient or guarantor signature",
+      "applies_when": "always",
+      "alternatives": [],
+      "source": "Application p.2"
+    },
+    {
+      "id": "spouse_signature",
+      "label": "Spouse signature",
+      "applies_when": "married",
+      "alternatives": [],
+      "source": "Application p.2"
+    }
+  ],
+  "screening_requirements": {
+    "medicaid_check": "Required for self-pay (uninsured) patients before assistance is given.",
+    "insurance_first": "Patients with insurance must use it first; assistance applies to what they still owe.",
+    "third_party_liability": "Injuries from auto accidents, workplace injuries, or legal claims are not eligible until those payment sources are exhausted.",
+    "immigration_status": "Not used to determine eligibility."
+  },
+  "exclusions": [
+    "Providers not affiliated with UMMS (e.g., medical equipment, home health)",
+    "Services denied by the patient's insurance",
+    "Cosmetic or non-medically necessary services",
+    "Convenience items, meals, and lodging",
+    "Third-party liability claims until other payment is exhausted"
+  ],
+  "timelines": {
+    "application_window_days": 240,
+    "application_window_from": "first post-discharge bill",
+    "probable_eligibility_business_days": 2,
+    "final_determination_days": 14,
+    "missing_info_response_days": 30
+  },
+  "contact": {
+    "phone": "410-821-4140",
+    "phone_toll_free": "877-632-4909",
+    "email": "CBOService@umm.edu",
+    "fax": "410-630-5341",
+    "mail": "UMMS, 11311 McCormick Road, Suite 230, Hunt Valley, MD 21031",
+    "hours": "Mon-Fri 8:00am-4:30pm"
+  }
+}

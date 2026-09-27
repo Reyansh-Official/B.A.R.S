@@ -1,0 +1,89 @@
+{
+  "note": "Synthetic patients for the demo. Names, accounts, and charges are invented. Thresholds come from policies/umms.json (2025-07-01 table). 'expected' is checked by src/lib/rules.test.ts.",
+  "cases": [
+    {
+      "id": "maria",
+      "title": "Straightforward case",
+      "hospital": "umms",
+      "patient": { "name": "Maria Santos", "dob": "1988-04-17", "address": "418 W Lombard St, Apt 3B, Baltimore, MD 21201", "phone": "(410) 555-0142" },
+      "story": "Single mom of two, works full time, insured. Knee MRI left her with a $2,340 balance after insurance.",
+      "bills": [
+        { "id": "maria-ummc", "file": "maria-ummc.pdf", "billerName": "University of Maryland Medical Center", "accountNumber": "H-20418837", "serviceDate": "2026-08-03", "statementDate": "2026-08-28", "amountOwed": 2340 }
+      ],
+      "answers": {
+        "householdSize": 3, "annualIncome": 52000, "employment": "employed", "insured": true, "married": false,
+        "benefits": [], "hasBenefitIncome": false, "housing": "rent", "thirdPartyInjury": false, "appliedForMedicaid": false
+      },
+      "docs": { "income_proof": { "status": "provided" }, "housing": { "status": "provided" } },
+      "medicaidStatus": "not_required",
+      "expected": {
+        "coverage": { "maria-ummc": "covered" },
+        "eligibility": "potentially_eligible",
+        "discountPct": 100,
+        "readiness": "missing_info",
+        "missing": ["Patient or guarantor signature"],
+        "estimatedOwed": { "maria-ummc": 0 }
+      },
+      "demoPoint": "Upload, confirm, screen, application preview. Only the e-signature is left."
+    },
+    {
+      "id": "james",
+      "title": "Missing-document case",
+      "hospital": "umms",
+      "patient": { "name": "James Carter", "dob": "1979-11-02", "address": "2210 E Monument St, Baltimore, MD 21205", "phone": "(443) 555-0187" },
+      "story": "Laid off in June and lost his insurance. Gets $1,850/month unemployment and is staying with his sister rent-free, so he has no pay stubs and no rent bill.",
+      "bills": [
+        { "id": "james-ummc", "file": "james-ummc.pdf", "billerName": "University of Maryland Medical Center", "accountNumber": "H-20397215", "serviceDate": "2026-07-20", "statementDate": "2026-08-10", "amountOwed": 3685 }
+      ],
+      "answers": {
+        "householdSize": 1, "annualIncome": 22200, "employment": "unemployed", "insured": false, "married": false,
+        "benefits": [], "hasBenefitIncome": false, "housing": "living_with_family", "thirdPartyInjury": false, "appliedForMedicaid": false
+      },
+      "docs": {
+        "unemployment_proof": { "status": "provided", "note": "Office of Unemployment Insurance benefit statement" },
+        "housing": { "status": "alternative", "note": "Form FAF 116: staying with his sister, room and board free" },
+        "signature": { "status": "provided" }
+      },
+      "medicaidStatus": "unknown",
+      "expected": {
+        "coverage": { "james-ummc": "covered" },
+        "eligibility": "potentially_eligible",
+        "discountPct": 100,
+        "readiness": "counselor_review",
+        "missing": [],
+        "estimatedOwed": { "james-ummc": 0 }
+      },
+      "demoPoint": "Tap 'I don't have this' on the rent bill, pick the FAF 116 alternative, readiness updates. Being uninsured raises the Medicaid screening flag for the counselor.",
+      "presumptiveVariant": "If James says he receives SNAP, he is presumptively eligible for free care and no income or housing documents are needed."
+    },
+    {
+      "id": "aisha",
+      "title": "Multiple-biller case",
+      "hospital": "umms",
+      "patient": { "name": "Aisha Rahman", "dob": "1985-06-23", "address": "7 Ridgely Rd, Catonsville, MD 21228", "phone": "(410) 555-0119" },
+      "story": "Broke her wrist; one ER visit produced two bills. Married with two kids, $98,000 household income, high-deductible insurance.",
+      "bills": [
+        { "id": "aisha-ummc", "file": "aisha-ummc.pdf", "billerName": "University of Maryland Medical Center", "accountNumber": "H-20452091", "serviceDate": "2026-08-15", "statementDate": "2026-09-05", "amountOwed": 4850 },
+        { "id": "aisha-fpi", "file": "aisha-fpi.pdf", "billerName": "University of Maryland Faculty Physicians, Inc.", "accountNumber": "P-7781420", "serviceDate": "2026-08-15", "statementDate": "2026-09-12", "amountOwed": 1240 }
+      ],
+      "answers": {
+        "householdSize": 4, "annualIncome": 98000, "employment": "employed", "insured": true, "married": true,
+        "benefits": [], "hasBenefitIncome": false, "housing": "rent", "thirdPartyInjury": false, "appliedForMedicaid": false
+      },
+      "docs": {
+        "income_proof": { "status": "missing", "note": "Has her 2 pay stubs; still needs her husband's" },
+        "housing": { "status": "provided" }
+      },
+      "medicaidStatus": "not_required",
+      "expected": {
+        "coverage": { "aisha-ummc": "covered", "aisha-fpi": "separate_program" },
+        "eligibility": "potentially_eligible",
+        "discountPct": 70,
+        "readiness": "missing_info",
+        "missing": ["Last 2 pay stubs, or this year's W-2", "Patient or guarantor signature", "Spouse signature"],
+        "estimatedOwed": { "aisha-ummc": 1455, "aisha-fpi": null }
+      },
+      "demoPoint": "Hospital bill gets a 70% discount application; the Faculty Physicians bill is flagged as outside the UMMS policy with the verified next step (call 410-528-5710)."
+    }
+  ]
+}
