@@ -1,3 +1,4 @@
+import { House } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/Logo";
@@ -11,6 +12,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
           <Link href="/admin" className="flex items-center gap-2 font-semibold text-slate-900"><LogoMark size={28} /> B.A.R.S. admin</Link>
           <nav className="flex gap-5 text-sm text-slate-600">
+            <Link href="/" className="inline-flex items-center gap-1.5 hover:text-slate-900"><House className="h-4 w-4" aria-hidden /> Home</Link>
             <Link href="/admin/outbox" className="hover:text-slate-900">Text reminders</Link>
             <Link href="/counselor" className="hover:text-slate-900">Counselor view</Link>
           </nav>
