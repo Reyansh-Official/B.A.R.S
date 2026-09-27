@@ -56,11 +56,6 @@ export const ExtractedPolicy = z.object({
 });
 export type ExtractedPolicy = z.infer<typeof ExtractedPolicy>;
 
-// One schema is too large to enforce in a single structured-output call, so extraction runs as three parts.
-export const ExtractCore = ExtractedPolicy.pick({ isFinancialAssistancePolicy: true, hospitalSystemName: true, facilities: true, policyTitle: true, effectiveDate: true, timelines: true, contact: true, uncertain: true });
-export const ExtractEligibility = ExtractedPolicy.pick({ income: true, hardship: true, presumptive: true, uncertain: true });
-export const ExtractPaperwork = ExtractedPolicy.pick({ documents: true, notCoveredBillers: true, exclusions: true, uncertain: true });
-
 export const DiscoveredDocuments = z.object({
   found: z.boolean(),
   officialName: z.string(),

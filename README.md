@@ -38,7 +38,9 @@ npm run add-counselor -- you@hospital.org umms
 4. An admin reviews it at `/admin` (checks, citations, sample households, band editor) and approves. Only then does the hospital go live.
 5. Patients' bills are grouped by hospital; each live hospital gets its own screening and its own application.
 
-Useful commands: `npm run seed-policies` (load hand-verified policies), `npm run retry-import -- <hospital-id>`, `npm run add-counselor -- <email> <hospital> --admin`.
+Cost controls (measured per import and written to the import log and `policy_imports.usage`): document search runs on Sonnet 5 with search only (no page fetches); large individual-clinician provider lists are skipped; extraction is a single Opus 5 read validated with zod (with a cheap repair pass if needed); retries reuse the links already found. Measured: $0.26 for extraction on Johns Hopkins, versus about $2.50 for the first MedStar import.
+
+Useful commands: `npm run seed-policies` (load hand-verified policies), `npm run retry-import -- <hospital-id> [--fresh]`, `npm run add-counselor -- <email> <hospital> --admin`.
 
 ## Security model
 
