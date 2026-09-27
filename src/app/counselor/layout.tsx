@@ -12,7 +12,7 @@ export default async function CounselorLayout({ children }: { children: ReactNod
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-3">
           <p className="font-semibold text-teal-700">
-            CareClear <span className="font-normal text-slate-500">· {getPolicy(counselor.hospitalId)?.name ?? counselor.hospitalId}</span>
+            CareClear <span className="font-normal text-slate-500">· {(await getPolicy(counselor.hospitalId))?.policy.name ?? counselor.hospitalId}</span>
           </p>
           <div className="flex items-center gap-4">
             <CounselorNav />

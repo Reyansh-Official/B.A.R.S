@@ -276,8 +276,8 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
   );
 }
 
-export default function Documents({ policy, state, update, next, back }: StepProps) {
-  const { readiness } = screen(policy, state.bills, state.answers, state.docs, state.medicaidStatus);
+export default function Documents({ policy, primaryBills, state, update, next, back }: StepProps) {
+  const { readiness } = screen(policy, primaryBills, state.answers, state.docs, state.medicaidStatus);
   const docs = readiness.documents.filter((d) => !SIGNATURES.includes(d.id));
   const done = docs.filter((d) => d.status !== "missing").length;
 

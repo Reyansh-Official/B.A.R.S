@@ -25,6 +25,21 @@ npm test        # rules engine against the demo cases
 npm run add-counselor -- you@hospital.org umms
 ```
 
+## Adding hospitals (automatic import)
+
+1. A patient uploads a bill; Claude reads the biller's name, address, state, and type.
+2. `/api/resolve-biller` matches it to a hospital in the database (`src/lib/resolve.ts`, deterministic). Physician groups a policy names are routed to that hospital's "separate program".
+3. Unknown hospital → a pending hospital and an import job are created, and the pipeline runs in the background (`src/lib/importer/`):
+   - **find**: Claude web search locates the policy, plain-language summary, application, and provider lists
+   - **download** the PDFs/pages
+   - **extract** the rules in three cached structured reads, with a page citation for every section
+   - **validate** with code: band order, discounts, dollar tables vs. % of FPL, and state minimums (`policies/state-minimums/`)
+   - save as a **draft** policy version
+4. An admin reviews it at `/admin` (checks, citations, sample households, band editor) and approves. Only then does the hospital go live.
+5. Patients' bills are grouped by hospital; each live hospital gets its own screening and its own application.
+
+Useful commands: `npm run seed-policies` (load hand-verified policies), `npm run retry-import -- <hospital-id>`, `npm run add-counselor -- <email> <hospital> --admin`.
+
 ## Security model
 
 - **Counselors** sign in with Supabase Auth (email and password). An account also needs a row in `public.counselors`, which ties it to one hospital. `src/proxy.ts` refreshes sessions and redirects signed-out visitors; pages and API routes check the counselor again with `getClaims()`.

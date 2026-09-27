@@ -16,8 +16,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const policy = getPolicy(body.hospitalId);
-  if (!policy) return Response.json({ error: "Unknown hospital" }, { status: 404 });
+  const loaded = await getPolicy(body.hospitalId);
+  if (!loaded) return Response.json({ error: "Unknown hospital" }, { status: 404 });
+  const { policy, policyId } = loaded;
 
   // Re-screen on the server so the counselor sees results from the rules engine, not whatever the client sent.
   const screening = screen(policy, body.bills, body.answers, body.docs, body.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(body.patient?.dob ?? "") });
@@ -41,6 +42,6 @@ export async function POST(request: Request) {
 
   // Patients are anonymous, so the insert uses the secret key; only a hash of their private key is stored.
   const accessToken = newAccessToken();
-  await insertApplications(createAdminClient(), [app], hashToken(accessToken));
+  await insertApplications(createAdminClient(), [app], hashToken(accessToken), policyId);
   return Response.json({ id: app.id, accessToken }, { status: 201 });
 }

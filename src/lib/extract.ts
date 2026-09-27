@@ -6,6 +6,12 @@ export const ExtractedBill = z.object({
   isMedicalBill: z.boolean().describe("False if this is not a medical bill or statement"),
   billerName: z.string().nullable().describe("Organization that sent the bill, exactly as printed"),
   billerPhone: z.string().nullable(),
+  billerAddress: z.string().nullable().describe("Biller's mailing address on one line"),
+  billerState: z.string().nullable().describe("Two-letter US state of the biller, e.g. MD"),
+  billerWebsite: z.string().nullable(),
+  billerType: z
+    .enum(["hospital", "physician_group", "lab", "imaging", "ambulance", "other"])
+    .describe("hospital = facility charges; physician_group = professional fees from doctors"),
   accountNumber: z.string().nullable(),
   patientName: z.string().nullable(),
   patientAddress: z.string().nullable().describe("Patient mailing address on one line"),

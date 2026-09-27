@@ -11,7 +11,9 @@ export async function POST() {
   if (!counselor) return unauthorized();
   const db = await createClient();
   await deleteSampleApplications(db, counselor.hospitalId);
-  const apps = buildSampleApplications(getPolicy(counselor.hospitalId)!, 24, new Date(), medicaidProgram);
+  const loaded = await getPolicy(counselor.hospitalId);
+  if (!loaded) return Response.json({ error: "No approved policy for this hospital" }, { status: 400 });
+  const apps = buildSampleApplications(loaded.policy, 24, new Date(), medicaidProgram);
   await insertApplications(db, apps);
   return Response.json({ added: apps.length });
 }

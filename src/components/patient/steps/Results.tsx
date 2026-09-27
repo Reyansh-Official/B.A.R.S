@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, ChevronDown, ExternalLink, Info, Phone, ShieldPlus } from "lucide-react";
+import { AlertTriangle, Building2, CheckCircle2, ChevronDown, ExternalLink, Hourglass, Info, Phone, ShieldPlus } from "lucide-react";
 import type { ReactNode } from "react";
 import { money } from "@/components/ui";
 import { ageFromDob, medicaidProgram } from "@/lib/programs";
@@ -108,10 +108,11 @@ function MedicaidCard({ m, bills }: { m: NonNullable<Screening["medicaid"]>; bil
   );
 }
 
-export default function Results({ policy, state, next, back }: StepProps) {
-  const r = screen(policy, state.bills, state.answers, state.docs, state.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(state.patient.dob) });
-  const byId = Object.fromEntries(state.bills.map((b) => [b.id, b]));
-  const estimated = state.bills.filter((b) => r.estimatedOwed[b.id] != null);
+export default function Results({ policy, primaryBills, groups, policies, state, next, back }: StepProps) {
+  const r = screen(policy, primaryBills, state.answers, state.docs, state.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(state.patient.dob) });
+  const byId = Object.fromEntries(primaryBills.map((b) => [b.id, b]));
+  const others = groups.filter((g) => g.hospitalId !== policy.id);
+  const estimated = primaryBills.filter((b) => r.estimatedOwed[b.id] != null);
   const before = estimated.reduce((s, b) => s + b.amountOwed, 0);
   const after = estimated.reduce((s, b) => s + (r.estimatedOwed[b.id] ?? 0), 0);
   const separate = r.coverage.filter((c) => c.status === "separate_program");
@@ -144,7 +145,44 @@ export default function Results({ policy, state, next, back }: StepProps) {
         </div>
       )}
 
-      {r.medicaid && (r.medicaid.status === "likely" || r.medicaid.status === "possible") && <MedicaidCard m={r.medicaid} bills={state.bills} />}
+      {r.medicaid && (r.medicaid.status === "likely" || r.medicaid.status === "possible") && <MedicaidCard m={r.medicaid} bills={primaryBills} />}
+
+      {others.map((g) => {
+        const total = g.bills.reduce((sum, b) => sum + b.amountOwed, 0);
+        const phone = g.bills.map((b) => state.resolutions?.[b.id]?.billerPhone ?? b.billerPhone).find(Boolean);
+        if (g.status === "live" && g.hospitalId && policies[g.hospitalId]) {
+          const o = screen(policies[g.hospitalId], g.bills, state.answers, state.docs, state.medicaidStatus);
+          const owed = g.bills.reduce((sum, b) => sum + (o.estimatedOwed[b.id] ?? b.amountOwed), 0);
+          return (
+            <div key={g.key} className="flex gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
+              <Building2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" aria-hidden />
+              <div>
+                <p className="font-semibold">{g.hospitalName}: about {money(owed)} instead of {money(total)}</p>
+                <p className="mt-1">{o.eligibility.reason} This is under {g.hospitalName}&apos;s own policy, and we&apos;ll send them a separate application.</p>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div key={g.key} className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+            <Hourglass className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden />
+            <div>
+              {g.status === "pending" ? (
+                <>
+                  <p className="font-semibold">We&apos;re adding {g.hospitalName}&apos;s assistance policy</p>
+                  <p className="mt-1">We found their published policy and a reviewer is checking it. Once it&apos;s approved, you can come back and add your {money(total)} bill. Until then, you can call them about financial assistance.</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold">We can&apos;t screen your {money(total)} bill from {g.hospitalName} yet</p>
+                  <p className="mt-1">It doesn&apos;t look like a hospital we can check. Ask them directly whether they offer financial assistance or a payment plan.</p>
+                </>
+              )}
+              {phone && <p className="mt-1">Their number from your bill: <a className="font-semibold underline" href={`tel:${phone}`}>{phone}</a></p>}
+            </div>
+          </div>
+        );
+      })}
 
       {separate.map((c) => (
         <div key={c.billId} className="flex gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">

@@ -40,6 +40,8 @@ export interface Policy {
     band_discounts_pct: number[];
     above_top_band_discount_pct: number;
     by_household_size: Record<string, { fpl_2025: number; mdh_limit_2025: number; band_upper_bounds: number[] }>;
+    // What the percentages are measured against, for explanations ("Maryland income limit", "federal poverty level").
+    limit_label?: string;
     source: string;
   };
   financial_hardship: { threshold_pct_of_income: number; rule: string; source: string };
@@ -69,7 +71,13 @@ export interface Bill {
   statementDate?: string;
   amountOwed: number;
   billerPhone?: string;
+  billerAddress?: string;
+  billerState?: string;
+  billerWebsite?: string;
+  billerType?: "hospital" | "physician_group" | "lab" | "imaging" | "ambulance" | "other";
   uncertainFields?: string[];
+  // Which institution's policy screens this bill (set by /api/resolve-biller).
+  hospitalId?: string;
 }
 
 export interface Answers {

@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { Card, money } from "@/components/ui";
+import type { BillResolution } from "@/lib/groups";
 import { shrinkImage } from "@/lib/files";
-import type { Bill } from "@/lib/types";
+import type { Bill, Policy } from "@/lib/types";
 import type { StepProps } from "../PatientFlow";
 import Nav from "./Nav";
 
@@ -10,7 +11,21 @@ const samples = [
   { file: "james-ummc.pdf", label: "James: ER bill, uninsured" },
   { file: "aisha-ummc.pdf", label: "Aisha: hospital bill" },
   { file: "aisha-fpi.pdf", label: "Aisha: physician bill" },
+  { file: "dana-medstar.pdf", label: "Dana: MedStar bill (other hospital)" },
 ];
+
+function ResolutionChip({ r, homeId }: { r?: BillResolution; homeId: string }) {
+  if (!r) return null;
+  const [cls, text] =
+    r.kind === "separate_program"
+      ? ["bg-sky-100 text-sky-900", `Doctor's bill · separate program`]
+      : r.kind === "hospital" && r.status === "live"
+        ? ["bg-emerald-100 text-emerald-800", r.hospitalId === homeId ? "Covered by this program" : `${r.hospitalName} program`]
+        : r.kind === "hospital"
+          ? ["bg-amber-100 text-amber-900", "New hospital · adding their policy"]
+          : ["bg-slate-100 text-slate-700", "Not a hospital we can screen"];
+  return <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>{text}</span>;
+}
 
 const blankBill = (): Bill => ({
   id: crypto.randomUUID(),
@@ -20,7 +35,7 @@ const blankBill = (): Bill => ({
   uncertainFields: ["billerName", "accountNumber", "serviceDate", "amountOwed"],
 });
 
-export default function Upload({ state, update, next, back }: StepProps) {
+export default function Upload({ state, update, next, back, policies, homePolicyId }: StepProps) {
   const input = useRef<HTMLInputElement>(null);
   const [reading, setReading] = useState(false);
   const [error, setError] = useState("");
@@ -43,9 +58,28 @@ export default function Upload({ state, update, next, back }: StepProps) {
         statementDate: data.statementDate ?? undefined,
         amountOwed: data.amountOwed ?? 0,
         uncertainFields: data.uncertainFields,
+        billerAddress: data.billerAddress ?? undefined,
+        billerState: data.billerState ?? undefined,
+        billerWebsite: data.billerWebsite ?? undefined,
+        billerType: data.billerType ?? undefined,
       };
+      // Match the biller to an institution; unknown hospitals start an automatic policy import on the server.
+      let resolution: BillResolution | undefined;
+      const extra: Record<string, Policy> = {};
+      try {
+        const r = await fetch("/api/resolve-biller", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(bill) });
+        if (r.ok) resolution = { ...(await r.json()), billerPhone: bill.billerPhone };
+        if (resolution?.kind === "hospital" && resolution.status === "live" && !policies[resolution.hospitalId]) {
+          const p = await fetch(`/api/policies/${resolution.hospitalId}`);
+          if (p.ok) extra[resolution.hospitalId] = await p.json();
+        }
+      } catch {
+        // Matching is best-effort; the bill still goes through under this hospital's link.
+      }
       update({
         bills: [...state.bills, bill],
+        resolutions: resolution ? { ...state.resolutions, [bill.id]: resolution } : state.resolutions,
+        extraPolicies: { ...state.extraPolicies, ...extra },
         patient: {
           ...state.patient,
           name: state.patient.name || data.patientName || "",
@@ -74,6 +108,7 @@ export default function Upload({ state, update, next, back }: StepProps) {
           <div>
             <p className="font-semibold">{b.billerName || "Bill details to fill in"}</p>
             <p className="text-sm text-slate-600">{b.serviceDate || "No date"} · {money(b.amountOwed)}</p>
+            <ResolutionChip r={state.resolutions?.[b.id]} homeId={homePolicyId} />
           </div>
           <button
             className="text-sm text-slate-500 underline"

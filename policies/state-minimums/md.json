@@ -1,0 +1,10 @@
+{
+  "state": "MD",
+  "verified": "2026-09-27",
+  "source": "https://www.law.cornell.edu/regulations/maryland/COMAR-10-37-10-26",
+  "citation": "COMAR 10.37.10.26 A-2; Md. Code, Health-General 19-214.1",
+  "free_care_min_pct_fpl": 200,
+  "reduced_cost_range_pct_fpl": [200, 300],
+  "hardship": { "debt_pct_of_income": 25, "income_below_pct_fpl": 500 },
+  "presumptive_programs": ["snap", "wic", "energy", "school_lunch", "pac"]
+}

@@ -21,7 +21,7 @@ const answers = [
 export default async function Home({ searchParams }: PageProps<"/">) {
   // Supabase sends failed OAuth attempts back to the site URL; show the error on the sign-in page instead.
   if ((await searchParams).error_code) redirect("/login?error=oauth");
-  const policy = getPolicy("umms")!;
+  const { policy } = (await getPolicy("umms"))!;
   const { url, lan } = await publicUrl("/h/umms");
   const qr = await QRCode.toString(url, { type: "svg", margin: 1, color: { dark: "#0f172a", light: "#ffffff" } });
 

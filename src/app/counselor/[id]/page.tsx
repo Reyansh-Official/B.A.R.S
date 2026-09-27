@@ -131,7 +131,7 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
 
       <Card className="md:col-span-2">
         <ApplicationPreview
-          policyName={getPolicy(app.hospitalId)?.name ?? app.hospitalId}
+          policyName={(await getPolicy(app.hospitalId))?.policy.name ?? app.hospitalId}
           patient={app.patient}
           answers={app.answers}
           bills={app.bills}

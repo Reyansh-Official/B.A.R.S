@@ -1,11 +1,13 @@
 // Usage: npm run add-counselor -- <email> [hospitalId] [--oauth-only]
 // Creates (or updates) a Supabase Auth user and links it to a hospital in public.counselors.
 // --oauth-only: no password; the counselor signs in with Google/Microsoft using this email.
+// --admin: can also review and approve imported hospital policies.
 import { createClient } from "@supabase/supabase-js";
 import { createInterface } from "node:readline";
 
 const args = process.argv.slice(2);
 const oauthOnly = args.includes("--oauth-only");
+const makeAdmin = args.includes("--admin");
 const [email, hospitalId = "umms"] = args.filter((a) => !a.startsWith("--"));
 if (!email || !email.includes("@")) {
   console.error("Usage: npm run add-counselor -- <email> [hospitalId]");
@@ -55,4 +57,8 @@ if (user) {
 
 const { error: linkError } = await admin.from("counselors").upsert({ user_id: user.id, hospital_id: hospitalId });
 if (linkError) throw linkError;
-console.log(`Counselor ${email} can now sign in for ${hospitalId}${oauthOnly ? " with Google or Microsoft" : ""}.`);
+if (makeAdmin) {
+  const { error } = await admin.from("admins").upsert({ user_id: user.id });
+  if (error) throw error;
+}
+console.log(`Counselor ${email} can now sign in for ${hospitalId}${oauthOnly ? " with Google or Microsoft" : ""}${makeAdmin ? " (admin)" : ""}.`);

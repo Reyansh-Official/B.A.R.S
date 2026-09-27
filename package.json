@@ -7,8 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/**/*.test.ts",
-    "add-counselor": "node --env-file=.env.local scripts/add-counselor.mjs"
+    "test": "node --test \"src/**/*.test.ts\"",
+    "add-counselor": "node --env-file=.env.local scripts/add-counselor.mjs",
+    "seed-policies": "node --env-file=.env.local scripts/seed-policies.mjs",
+    "retry-import": "node --env-file=.env.local scripts/retry-import.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

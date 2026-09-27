@@ -75,8 +75,8 @@ function check<T>(result: { data: T; error: { message: string } | null }): T {
   return result.data;
 }
 
-export async function insertApplications(db: SupabaseClient, apps: Application[], accessTokenHash?: string) {
-  check(await db.from("applications").insert(apps.map((a) => ({ ...toRow(a), access_token_hash: accessTokenHash ?? null }))));
+export async function insertApplications(db: SupabaseClient, apps: Application[], accessTokenHash?: string, policyId?: string | null) {
+  check(await db.from("applications").insert(apps.map((a) => ({ ...toRow(a), access_token_hash: accessTokenHash ?? null, policy_id: policyId ?? null }))));
 }
 
 export async function updateApplication(db: SupabaseClient, app: Application): Promise<Application> {

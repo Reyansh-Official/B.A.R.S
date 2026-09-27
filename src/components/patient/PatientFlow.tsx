@@ -3,6 +3,7 @@
 import { HeartHandshake } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DemoCase, Patient } from "@/lib/demo";
+import { groupBills, type BillGroup, type BillResolution } from "@/lib/groups";
 import type { Answers, Bill, DocState, MedicaidScreening, Policy } from "@/lib/types";
 import Welcome from "./steps/Welcome";
 import Upload from "./steps/Upload";
@@ -23,10 +24,25 @@ export interface FlowState {
   accessToken?: string;
   prefilled?: boolean;
   answered?: string[];
+  resolutions?: Record<string, BillResolution>;
+  extraPolicies?: Record<string, Policy>;
+  applications?: SubmittedApplication[];
+}
+
+export interface SubmittedApplication {
+  hospitalId: string;
+  hospitalName: string;
+  id: string;
+  accessToken: string;
 }
 
 export interface StepProps {
+  // Policy of the primary hospital (the one whose bills get the full screening).
   policy: Policy;
+  primaryBills: Bill[];
+  groups: BillGroup[];
+  policies: Record<string, Policy>;
+  homePolicyId: string;
   state: FlowState;
   update: (patch: Partial<FlowState>) => void;
   next: () => void;
@@ -78,6 +94,12 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
+  const policies: Record<string, Policy> = { ...state.extraPolicies, [policy.id]: policy };
+  const groups = groupBills(state.bills, state.resolutions ?? {}, { id: policy.id, name: policy.name });
+  const primaryGroup = groups.find((g) => g.status === "live" && g.hospitalId && policies[g.hospitalId]);
+  const primaryPolicy = (primaryGroup?.hospitalId && policies[primaryGroup.hospitalId]) || policy;
+  const primaryBills = primaryGroup?.bills ?? [];
+
   const { name, Component } = steps[step];
   return (
     <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-4 px-4 pb-8 pt-4">
@@ -117,7 +139,11 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
       )}
       <div key={step} className="flex animate-enter flex-col gap-4">
         <Component
-          policy={policy}
+          policy={primaryPolicy}
+          primaryBills={primaryBills}
+          groups={groups}
+          policies={policies}
+          homePolicyId={policy.id}
           state={state}
           update={update}
           next={() => setStep((s) => Math.min(s + 1, steps.length - 1))}

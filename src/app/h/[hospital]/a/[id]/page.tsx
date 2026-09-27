@@ -5,8 +5,9 @@ import { getPolicy } from "@/lib/policies";
 export default async function StatusPage({ params, searchParams }: PageProps<"/h/[hospital]/a/[id]">) {
   const { hospital, id } = await params;
   const { t } = await searchParams;
-  const policy = getPolicy(hospital);
-  if (!policy) notFound();
+  const loaded = await getPolicy(hospital);
+  if (!loaded) notFound();
+  const { policy } = loaded;
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-6">
       <p className="text-sm font-semibold text-teal-700">CareClear · {policy.name}</p>

@@ -40,7 +40,9 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
   const body = (await request.json()) as Action;
   if (body.action !== "respond" && role !== "counselor") return unauthorized();
 
-  const policy = getPolicy(app.hospitalId)!;
+  const current = await getPolicy(app.hospitalId);
+  if (!current) return Response.json({ error: "No approved policy for this hospital" }, { status: 409 });
+  const { policy } = current;
   const now = new Date();
   const next: Application = { ...app, updatedAt: now.toISOString() };
 

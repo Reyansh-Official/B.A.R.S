@@ -14,13 +14,13 @@ const fields: { key: keyof Patient; label: string; type: string; autoComplete: s
   { key: "phone", label: "Phone number", type: "tel", autoComplete: "tel" },
 ];
 
-export default function Review({ policy, state, update, next, back }: StepProps) {
+export default function Review({ policy, primaryBills, groups, state, update, next, back }: StepProps) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [spouseName, setSpouseName] = useState("");
   const { patient, answers } = state;
-  const screening = screen(policy, state.bills, answers, state.docs, state.medicaidStatus);
+  const screening = screen(policy, primaryBills, answers, state.docs, state.medicaidStatus);
   const today = new Date().toLocaleDateString();
 
   const sign = (id: "signature" | "spouse_signature", who: string, dataUrl: string | null) => {
@@ -36,18 +36,27 @@ export default function Review({ policy, state, update, next, back }: StepProps)
   const detailsDone = fields.every((f) => patient[f.key].trim());
   const ready = detailsDone && agreed && signed("signature") && (!answers.married || (signed("spouse_signature") && spouseName.trim()));
 
+  // Each hospital's counselors only see their own bills, so send one application per live hospital.
+  const liveGroups = groups.filter((g) => g.status === "live" && g.hospitalId);
   const submit = async () => {
     setSending(true);
     setError("");
-    const res = await fetch("/api/applications", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hospitalId: policy.id, ...state }),
-    });
+    const sent: NonNullable<typeof state.applications> = [];
+    for (const g of liveGroups) {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...state, hospitalId: g.hospitalId, bills: g.bills }),
+      });
+      if (!res.ok) {
+        setSending(false);
+        return setError(`Couldn't send to ${g.hospitalName}. Please try again.`);
+      }
+      const { id, accessToken } = await res.json();
+      sent.push({ hospitalId: g.hospitalId!, hospitalName: g.hospitalName, id, accessToken });
+    }
     setSending(false);
-    if (!res.ok) return setError("Couldn't send. Please try again.");
-    const { id, accessToken } = await res.json();
-    update({ applicationId: id, accessToken });
+    update({ applications: sent, applicationId: sent[0]?.id, accessToken: sent[0]?.accessToken });
     next();
   };
 
@@ -78,7 +87,7 @@ export default function Review({ policy, state, update, next, back }: StepProps)
           policyName={policy.name}
           patient={patient}
           answers={answers}
-          bills={state.bills}
+          bills={primaryBills}
           screening={screening}
           medicaidStatus={state.medicaidStatus}
         />
@@ -116,8 +125,14 @@ export default function Review({ policy, state, update, next, back }: StepProps)
           {!signed("signature") || (answers.married && !signed("spouse_signature")) ? "Add the signature(s)." : ""}
         </p>
       )}
+      {liveGroups.length === 0 && (
+        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+          None of your bills are from a hospital we can send to yet. Once their policy is approved, come back and upload the bill again to send an application.
+        </p>
+      )}
+      {liveGroups.length > 1 && <p className="text-sm text-slate-600">This will send separate applications to {liveGroups.map((g) => g.hospitalName).join(" and ")}.</p>}
       {error && <p className="text-sm text-rose-700">{error}</p>}
-      <Nav next={submit} back={back} nextLabel={sending ? "Sending…" : "Send to a financial counselor"} nextDisabled={sending || !ready} />
+      <Nav next={submit} back={back} nextLabel={sending ? "Sending…" : "Send to a financial counselor"} nextDisabled={sending || !ready || liveGroups.length === 0} />
     </>
   );
 }

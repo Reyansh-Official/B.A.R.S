@@ -111,7 +111,7 @@ export function screenEligibility(policy: Policy, answers: Answers, coveredDebt:
     discountPct,
     pctOfMdhLimit,
     reason:
-      `${income} falls in the $${lower.toLocaleString()}-$${table.band_upper_bounds[band].toLocaleString()} range (${bandPct} of the Maryland income limit), which qualifies for ${discountPct === 100 ? "free care" : `a ${discountPct}% discount`}.` +
+      `${income} falls in the $${lower.toLocaleString()}-$${table.band_upper_bounds[band].toLocaleString()} range (${bandPct} of the ${rules.limit_label ?? "Maryland income limit"}), which qualifies for ${discountPct === 100 ? "free care" : `a ${discountPct}% discount`}.` +
       (hardship && discountPct < 100 ? " Medical debt also exceeds the hardship threshold; a counselor may apply a larger reduction." : ""),
     source: rules.source,
   };
