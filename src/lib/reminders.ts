@@ -37,7 +37,7 @@ async function sendViaMessages(to: string, body: string): Promise<SendResult> {
 }
 
 // Twilio REST: one form POST. With no provider configured, messages are only logged to the admin Outbox.
-async function sendSms(to: string, body: string): Promise<SendResult> {
+export async function sendSms(to: string, body: string): Promise<SendResult> {
   const mode = smsMode();
   if (mode === "outbox") return { status: "logged" };
   if (mode === "messages") return sendViaMessages(to, body);

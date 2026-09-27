@@ -89,7 +89,7 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
   const loadDemo = (id: string) => {
     const c = demoCases.find((d) => d.id === id);
     if (!c) return setState(emptyState);
-    setState({ patient: c.patient, bills: c.bills, answers: c.answers, docs: c.docs, medicaidStatus: c.medicaidStatus, prefilled: true });
+    setState({ patient: c.patient, bills: c.bills.map((b) => ({ ...b, patientName: b.patientName ?? c.patient.name })), answers: c.answers, docs: c.docs, medicaidStatus: c.medicaidStatus, prefilled: true });
   };
 
   useEffect(() => {

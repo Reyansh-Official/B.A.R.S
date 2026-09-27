@@ -6,6 +6,7 @@ import AutoRefresh from "@/components/AutoRefresh";
 import CounselorActions from "@/components/counselor/CounselorActions";
 import Thread from "@/components/Thread";
 import { Badge, Card, money } from "@/components/ui";
+import { identityChecks } from "@/lib/identity";
 import { counselorStatus } from "@/lib/status";
 import { getPolicy } from "@/lib/policies";
 import { requireCounselor } from "@/lib/auth";
@@ -114,6 +115,25 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
           ))}
         </ul>
         {s.readiness.flags.map((f) => <p key={f} className="mt-2 text-sm text-amber-800">⚑ {f}</p>)}
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 font-semibold">Identity checks</h2>
+        <p className="mb-3 text-xs text-slate-500">Automatic comparisons to help you verify. Confirm the account number and date of birth against your billing record.</p>
+        <ul className="flex flex-col gap-2 text-sm">
+          {identityChecks(app).map((c, i) => (
+            <li key={i} className="flex gap-2">
+              <span className={`mt-0.5 h-fit shrink-0 rounded-full px-2 text-xs font-semibold ${c.status === "ok" ? "bg-emerald-100 text-emerald-800" : c.status === "review" ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}>
+                {c.status === "ok" ? "match" : c.status === "review" ? "review" : "n/a"}
+              </span>
+              <span><b>{c.label}:</b> {c.detail}</span>
+            </li>
+          ))}
+          <li className="text-slate-600">
+            <b>To match in billing:</b> DOB {app.patient.dob || "not given"}
+            {app.bills.filter((b) => b.accountNumber).map((b) => ` · ${b.billerName} acct ${b.accountNumber}`).join("")}
+          </li>
+        </ul>
       </Card>
 
       <Card>

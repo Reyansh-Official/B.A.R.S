@@ -40,6 +40,7 @@ export interface Application {
   submittedAt: string;
   updatedAt: string;
   sample?: boolean;
+  phoneVerifiedAt?: string;
 }
 
 // Indexed/filtered fields are real columns; the rest of the application lives in `data` (jsonb).

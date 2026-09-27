@@ -3,6 +3,7 @@ import { hashToken, newAccessToken, unauthorized } from "@/lib/access";
 import { getCounselor } from "@/lib/auth";
 import { after } from "next/server";
 import { getPolicy } from "@/lib/policies";
+import { isVerified } from "@/lib/phone-verify";
 import { optIn } from "@/lib/reminders";
 import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
@@ -42,10 +43,13 @@ export async function POST(request: Request) {
     updatedAt: now,
   };
 
+  // Reminders only go to a phone the patient proved they control with a one-time code.
+  if (body.textReminders && (await isVerified(body.phoneVerificationId, app.patient?.phone ?? ""))) app.phoneVerifiedAt = now;
+
   // Patients are anonymous, so the insert uses the secret key; only a hash of their private key is stored.
   const accessToken = newAccessToken();
   await insertApplications(createAdminClient(), [app], hashToken(accessToken), policyId);
-  if (body.textReminders && app.patient?.phone) {
+  if (app.phoneVerifiedAt) {
     const base = process.env.BARS_PUBLIC_URL ?? new URL(request.url).origin;
     after(() => optIn(app, app.patient.phone, `${base}/h/${app.hospitalId}/a/${app.id}?t=${accessToken}`).catch((e) => console.error("Reminder opt-in failed", e)));
   }

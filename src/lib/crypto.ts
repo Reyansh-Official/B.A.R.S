@@ -1,5 +1,5 @@
 import "server-only";
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "node:crypto";
 
 // AES-256-GCM for data we must be able to read back (phone numbers, status links). Format: iv.tag.ciphertext (base64url).
 function key() {
@@ -21,3 +21,6 @@ export function decrypt(sealed: string): string {
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(data), decipher.final()]).toString("utf8");
 }
+
+// Keyed hash for lookups (a plain hash of a 10-digit phone number is easy to reverse).
+export const keyedHash = (value: string) => createHmac("sha256", key()).update(value).digest("base64url");

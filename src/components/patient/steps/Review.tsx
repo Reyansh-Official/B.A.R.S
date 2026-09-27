@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ApplicationPreview from "@/components/ApplicationPreview";
 import SignaturePad from "@/components/SignaturePad";
+import PhoneVerify from "../PhoneVerify";
 import { Card } from "@/components/ui";
 import { screen } from "@/lib/rules";
 import type { Patient } from "@/lib/demo";
@@ -19,8 +20,10 @@ export default function Review({ policy, primaryBills, groups, state, update, ne
   const [error, setError] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [spouseName, setSpouseName] = useState("");
-  const [texts, setTexts] = useState(false);
+  // Tied to the number it was verified for, so editing the phone turns reminders back off.
+  const [verification, setVerification] = useState<{ id: string; phone: string } | null>(null);
   const { patient, answers } = state;
+  const phoneVerificationId = verification?.phone === patient.phone ? verification.id : null;
   const screening = screen(policy, primaryBills, answers, state.docs, state.medicaidStatus);
   const today = new Date().toLocaleDateString();
 
@@ -47,7 +50,7 @@ export default function Review({ policy, primaryBills, groups, state, update, ne
       const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...state, hospitalId: g.hospitalId, bills: g.bills, textReminders: texts }),
+        body: JSON.stringify({ ...state, hospitalId: g.hospitalId, bills: g.bills, textReminders: Boolean(phoneVerificationId), phoneVerificationId }),
       });
       if (!res.ok) {
         setSending(false);
@@ -120,14 +123,7 @@ export default function Review({ policy, primaryBills, groups, state, update, ne
       </Card>
 
       <Card>
-        <label className="flex gap-3 text-sm text-slate-700">
-          <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-teal-700" checked={texts} disabled={!patient.phone} onChange={(e) => setTexts(e.target.checked)} />
-          <span>
-            <span className="font-semibold text-slate-900">Text me deadline reminders{patient.phone ? ` at ${patient.phone}` : ""}</span> (optional)
-            <br />
-            {patient.phone ? "We'll text you if the hospital asks for more information and a few days before any deadline. About 1–6 messages per application. Msg & data rates may apply. Reply STOP to opt out." : "Add your phone number above to get text reminders."}
-          </span>
-        </label>
+        <PhoneVerify key={patient.phone} phone={patient.phone} onVerified={(id) => setVerification(id ? { id, phone: patient.phone } : null)} />
       </Card>
 
       {!ready && (

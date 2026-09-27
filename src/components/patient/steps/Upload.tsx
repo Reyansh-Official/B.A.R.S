@@ -62,6 +62,7 @@ export default function Upload({ state, update, next, back, policies, homePolicy
         billerState: data.billerState ?? undefined,
         billerWebsite: data.billerWebsite ?? undefined,
         billerType: data.billerType ?? undefined,
+        patientName: data.patientName ?? undefined,
       };
       // Match the biller to an institution; unknown hospitals start an automatic policy import on the server.
       let resolution: BillResolution | undefined;

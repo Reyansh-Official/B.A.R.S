@@ -58,6 +58,9 @@ Patients can opt in on the Review step (unchecked by default). They get a welcom
 
 ## Security model
 
+- Patients have no accounts. Their application is protected by a private link (only a hash is stored). Reminder texts go only to a phone confirmed with a one-time code (hashed, 10-minute expiry, 5 tries, 3 sends per 15 minutes).
+- Counselors see an "Identity checks" card: the applicant's name compared with the name on each bill and each uploaded document, plus the DOB and account numbers to match in their billing system.
+
 - **Counselors** sign in with Supabase Auth (email and password). An account also needs a row in `public.counselors`, which ties it to one hospital. `src/proxy.ts` refreshes sessions and redirects signed-out visitors; pages and API routes check the counselor again with `getClaims()`.
 - **Row-level security** in Postgres limits counselors to their own hospital's applications, even if app code has a bug. Anonymous visitors have no table access.
 - **Patients** don't have accounts. Submitting returns a random key that is part of their private status link (`/h/umms/a/<id>?t=<key>`). Only its SHA-256 hash is stored; the server checks it before acting for the patient with the secret key.

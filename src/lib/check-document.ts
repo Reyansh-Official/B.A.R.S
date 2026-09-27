@@ -81,7 +81,7 @@ export interface CheckContext {
 
 // The model only reads; every judgment below is deterministic and advisory (it never changes eligibility or readiness).
 export function evaluate(doc: ReadDocument, ctx: CheckContext): DocCheck {
-  const base = { fileName: ctx.fileName, documentType: doc.documentType };
+  const base = { fileName: ctx.fileName, documentType: doc.documentType, personName: doc.personName ?? undefined };
   if (!doc.readable) {
     return { ...base, verdict: "unreadable", summary: "We couldn't read this file", details: ["Try a clearer, well-lit photo with all four corners showing."] };
   }

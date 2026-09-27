@@ -67,6 +67,7 @@ export interface Bill {
   id: string;
   billerName: string;
   accountNumber?: string;
+  patientName?: string;
   serviceDate: string;
   statementDate?: string;
   amountOwed: number;
@@ -108,6 +109,7 @@ export interface DocCheck {
   fileName: string;
   verdict: "ok" | "warn" | "wrong_type" | "unreadable";
   documentType?: string;
+  personName?: string;
   summary: string;
   details: string[];
   annualizedIncome?: number;
