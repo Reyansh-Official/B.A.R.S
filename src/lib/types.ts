@@ -50,6 +50,12 @@ export interface Policy {
     note?: string;
     source: string;
   }[];
+  timelines: {
+    application_window_days: number;
+    probable_eligibility_business_days: number;
+    final_determination_days: number;
+    missing_info_response_days: number;
+  };
   contact: { phone: string; phone_toll_free: string; email: string; fax: string; mail: string; hours: string };
 }
 

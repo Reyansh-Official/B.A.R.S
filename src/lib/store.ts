@@ -1,12 +1,20 @@
 import type { Patient } from "./demo";
 import type { Answers, Bill, DocState, MedicaidScreening, Screening } from "./types";
 
-export type ApplicationStatus = "submitted" | "info_requested" | "in_review";
+export type AppStatus = "submitted" | "info_requested" | "responded" | "in_review";
 
 export interface Message {
   from: "counselor" | "patient";
   text: string;
   at: string;
+}
+
+export interface InfoRequest {
+  docIds: string[];
+  message: string;
+  at: string;
+  dueBy: string;
+  resolvedAt?: string;
 }
 
 export interface Application {
@@ -18,9 +26,11 @@ export interface Application {
   docs: Record<string, DocState>;
   medicaidStatus: MedicaidScreening;
   screening: Screening;
-  status: ApplicationStatus;
+  status: AppStatus;
   messages: Message[];
+  requests: InfoRequest[];
   submittedAt: string;
+  updatedAt: string;
 }
 
 // In-memory for local dev; swap for Supabase so the phone and laptop share data when deployed.

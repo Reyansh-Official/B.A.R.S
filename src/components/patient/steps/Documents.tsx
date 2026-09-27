@@ -47,7 +47,7 @@ function AddMore({ onFiles }: { onFiles: (files: File[]) => void }) {
   );
 }
 
-function DocCard({ doc, set }: { doc: RequiredDoc; set: (state: DocState | undefined) => void }) {
+export function DocCard({ doc, set }: { doc: RequiredDoc; set: (state: DocState | undefined) => void }) {
   const [mode, setMode] = useState<"idle" | "alternatives" | "counselor">("idle");
   const [form, setForm] = useState<Alternative | null>(null);
   const [explain, setExplain] = useState("");

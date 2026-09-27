@@ -34,12 +34,18 @@ Three independent answers for every patient:
 | `src/lib/store.ts` | In-memory application store (swap for Supabase to share across devices) |
 | `src/components/patient/steps/` | One file per patient screen |
 | `src/app/counselor/` | Counselor queue and packet view |
-| `src/app/api/` | `applications` (submit/list/get), `extract` (bill reading, not built yet) |
+| `src/app/api/` | `applications` (submit, list, get, and PATCH actions: request info, respond, Medicaid status, in review), `extract` (Claude bill reading) |
 
 ## Status
 
-Working: rules engine, results screen, document status, submit, counselor queue and packet view.
+The full demo loop works end to end:
 
-To build (marked `TODO` in the UI): bill upload + Claude extraction, editable confirm step, question-by-question intake, "I don't have this" document flow, application preview + e-signature, counselor request-info loop.
+1. Patient uploads bills (Claude reads them), confirms the details, answers the household questions
+2. Results screen: coverage per bill, eligibility, and readiness, each citing the policy
+3. Documents: upload, or "I don't have this" for policy-accepted alternatives and in-app FAF 116 forms
+4. Review the prefilled application and sign (spouse too, if married)
+5. Counselor sees the packet, requests missing items; the patient's status page (`/h/umms/a/<id>`) shows the request, they respond, and the counselor view updates live
+
+Not built for production: sign-in for counselors, secret links for patients, a real database (data lives in server memory), and file storage.
 
 All patient data in `demo-cases/` is synthetic.

@@ -2,7 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import ApplicationPreview from "@/components/ApplicationPreview";
-import { Badge, Card, Todo, money } from "@/components/ui";
+import AutoRefresh from "@/components/AutoRefresh";
+import CounselorActions from "@/components/counselor/CounselorActions";
+import Thread from "@/components/Thread";
+import { Badge, Card, money } from "@/components/ui";
+import { counselorStatus } from "@/lib/status";
 import { getPolicy } from "@/lib/policies";
 import { getApplication } from "@/lib/store";
 
@@ -13,16 +17,42 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
   if (!app) notFound();
   const { screening: s } = app;
   const signatures = s.readiness.documents.filter((d) => d.id.includes("signature"));
+  const requestable = s.readiness.documents
+    .filter((d) => d.status === "missing" || d.status === "counselor")
+    .map((d) => ({ id: d.id, label: d.label, note: d.statusNote }));
+  const status = counselorStatus[app.status];
 
   return (
     <main className="mx-auto grid w-full max-w-5xl gap-4 px-6 py-8 md:grid-cols-2">
       <div className="md:col-span-2">
         <Link href="/counselor" className="text-sm text-teal-700 underline">← Queue</Link>
-        <h1 className="mt-2 text-2xl font-bold">{app.patient.name}</h1>
+        <AutoRefresh />
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold">{app.patient.name}</h1>
+          <Badge tone={status.tone}>{status.text}</Badge>
+        </div>
         <p className="text-sm text-slate-500">
           Ref {app.id} · Screened under {s.policyId.toUpperCase()} policy rev. {s.policyRevision}
         </p>
       </div>
+
+      <Card>
+        <h2 className="mb-3 font-semibold">Actions</h2>
+        <CounselorActions
+          key={`${app.status}-${app.updatedAt}`}
+          appId={app.id}
+          firstName={app.patient.name.split(" ")[0]}
+          status={app.status}
+          insured={app.answers.insured}
+          medicaidStatus={app.medicaidStatus}
+          requestable={requestable}
+        />
+      </Card>
+
+      <Card>
+        <h2 className="mb-3 font-semibold">Conversation</h2>
+        {app.messages.length ? <Thread messages={app.messages} viewer="counselor" /> : <p className="text-sm text-slate-500">No messages yet.</p>}
+      </Card>
 
       <Card>
         <h2 className="mb-2 font-semibold">Bills</h2>
@@ -72,9 +102,6 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
             )}
           </div>
         ))}
-        <div className="mt-3">
-          <Todo>Counselor actions: request missing info (patient gets notified and responds), update Medicaid screening status, mark in review.</Todo>
-        </div>
       </Card>
 
       <Card className="md:col-span-2">

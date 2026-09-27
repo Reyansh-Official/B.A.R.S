@@ -24,7 +24,9 @@ export async function POST(request: Request) {
     screening,
     status: "submitted",
     messages: [],
+    requests: [],
     submittedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
   return Response.json(saveApplication(app), { status: 201 });
 }
