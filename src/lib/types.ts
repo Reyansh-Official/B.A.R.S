@@ -91,11 +91,22 @@ export interface UploadedFile {
   dataUrl: string;
 }
 
+export interface DocCheck {
+  fileName: string;
+  verdict: "ok" | "warn" | "wrong_type" | "unreadable";
+  documentType?: string;
+  summary: string;
+  details: string[];
+  annualizedIncome?: number;
+  suggestedIncome?: number;
+}
+
 export interface DocState {
   status: DocStatus;
   note?: string;
   alternativeId?: string;
   files?: UploadedFile[];
+  checks?: DocCheck[];
 }
 
 export type MedicaidScreening = "not_required" | "unknown" | "pending" | "completed";
@@ -126,6 +137,7 @@ export interface RequiredDoc {
   status: DocStatus;
   statusNote?: string;
   files?: UploadedFile[];
+  checks?: DocCheck[];
 }
 
 export interface ReadinessResult {

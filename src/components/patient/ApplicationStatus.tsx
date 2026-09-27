@@ -88,7 +88,7 @@ export default function ApplicationStatus({ id, policy }: { id: string; policy: 
       {open && (
         <>
           {requested.map((d) => (
-            <DocCard key={d.id} doc={d} set={(v) => setChanges((c) => ({ ...c, [d.id]: v }))} />
+            <DocCard key={d.id} doc={d} statedIncome={app.answers.annualIncome} set={(v) => setChanges((c) => ({ ...c, [d.id]: v }))} />
           ))}
           <textarea
             className="rounded-xl border border-slate-300 bg-white p-3 text-base"

@@ -160,6 +160,7 @@ export function assessReadiness(
     status: docs[d.id]?.status ?? "missing",
     statusNote: docs[d.id]?.note,
     files: docs[d.id]?.files,
+    checks: docs[d.id]?.checks,
   }));
 
   const flags: string[] = [];

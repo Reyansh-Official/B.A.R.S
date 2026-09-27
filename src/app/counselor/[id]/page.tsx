@@ -82,9 +82,19 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
             <li key={d.id} className="py-1">
               <b>{d.status}</b> · {d.label}
               {d.statusNote && <span className="block text-slate-600">{d.statusNote}</span>}
-              {d.files?.map((f, i) => (
-                <a key={i} href={f.dataUrl} download={f.name} className="block text-teal-700 underline">📎 {f.name}</a>
-              ))}
+              {d.files?.map((f, i) => {
+                const check = d.checks?.find((c) => c.fileName === f.name);
+                return (
+                  <div key={i}>
+                    <a href={f.dataUrl} download={f.name} className="block text-teal-700 underline">📎 {f.name}</a>
+                    {check && (
+                      <p className={`ml-5 text-xs ${check.verdict === "ok" ? "text-emerald-800" : "text-amber-800"}`}>
+                        AI pre-check ({check.verdict === "ok" ? "matches" : "review"}): {check.summary}. {check.verdict !== "ok" && check.details.join(" ")}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </li>
           ))}
         </ul>
