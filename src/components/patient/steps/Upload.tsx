@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Card, money } from "@/components/ui";
+import { shrinkImage } from "@/lib/files";
 import type { Bill } from "@/lib/types";
 import type { StepProps } from "../PatientFlow";
 import Nav from "./Nav";
@@ -10,19 +11,6 @@ const samples = [
   { file: "aisha-ummc.pdf", label: "Aisha: hospital bill" },
   { file: "aisha-fpi.pdf", label: "Aisha: physician bill" },
 ];
-
-// Phone photos can be 10+ MB; the API accepts images up to 5 MB, and bills stay readable at 2000px.
-async function shrinkImage(file: File): Promise<File> {
-  if (!file.type.startsWith("image/") || file.size < 3_000_000) return file;
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.85));
-  return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
-}
 
 const blankBill = (): Bill => ({
   id: crypto.randomUUID(),

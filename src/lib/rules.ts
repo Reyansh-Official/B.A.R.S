@@ -159,6 +159,7 @@ export function assessReadiness(
     note: d.note,
     status: docs[d.id]?.status ?? "missing",
     statusNote: docs[d.id]?.note,
+    files: docs[d.id]?.files,
   }));
 
   const flags: string[] = [];

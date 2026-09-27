@@ -390,8 +390,17 @@
       "label": "Last 2 pay stubs, or this year's W-2",
       "applies_when": "employed",
       "alternatives": [
-        "Other evidence of income",
-        "Most recent federal tax return"
+        {
+          "id": "other_income",
+          "label": "Other proof of income",
+          "kind": "upload",
+          "hint": "A bank statement showing deposits, a letter from your employer, or a benefits letter"
+        },
+        {
+          "id": "tax_return",
+          "label": "Your most recent federal tax return",
+          "kind": "upload"
+        }
       ],
       "note": "If both a tax return and pay stubs are given and they disagree, the most recent one decides.",
       "source": "Application p.1; policy p.3"
@@ -401,7 +410,12 @@
       "label": "Most recent federal tax return (Form 1040)",
       "applies_when": "self_employed",
       "alternatives": [
-        "Other evidence of income"
+        {
+          "id": "other_income",
+          "label": "Other proof of income",
+          "kind": "upload",
+          "hint": "Bank statements, invoices, or a 1099"
+        }
       ],
       "source": "Application p.1; policy p.3"
     },
@@ -410,9 +424,24 @@
       "label": "Proof of unemployment",
       "applies_when": "unemployed",
       "alternatives": [
-        "Statement from the Office of Unemployment Insurance",
-        "Statement from your current source of financial support",
-        "Form FAF 116 (unemployed section)"
+        {
+          "id": "ui_statement",
+          "label": "Unemployment benefits statement",
+          "kind": "upload",
+          "hint": "From the Maryland Division of Unemployment Insurance"
+        },
+        {
+          "id": "support_statement",
+          "label": "A note from whoever is helping you financially",
+          "kind": "upload"
+        },
+        {
+          "id": "faf116_unemployed",
+          "label": "Fill out the 'not working' form (FAF 116)",
+          "kind": "form",
+          "form": "faf116_unemployed",
+          "hint": "For when you have no unemployment benefits or paperwork"
+        }
       ],
       "source": "Policy p.3; application p.3"
     },
@@ -421,7 +450,12 @@
       "label": "Social Security, disability, or other household income statements",
       "applies_when": "has_benefit_income",
       "alternatives": [
-        "Other evidence of income"
+        {
+          "id": "other_income",
+          "label": "Other proof of income",
+          "kind": "upload",
+          "hint": "A bank statement showing the deposits"
+        }
       ],
       "source": "Application p.1"
     },
@@ -430,8 +464,20 @@
       "label": "Mortgage or rent bill (or property tax statement)",
       "applies_when": "always",
       "alternatives": [
-        "Written description of your current living situation",
-        "Form FAF 116 (help with food and shelter section)"
+        {
+          "id": "faf116_shelter",
+          "label": "Fill out the 'help with housing' form (FAF 116)",
+          "kind": "form",
+          "form": "faf116_shelter",
+          "hint": "If you stay with someone else"
+        },
+        {
+          "id": "housing_statement",
+          "label": "Describe your living situation",
+          "kind": "form",
+          "form": "housing_statement",
+          "hint": "A short written description is accepted"
+        }
       ],
       "source": "Policy p.3; application p.1 and p.3"
     },

@@ -1,6 +1,14 @@
 export type Employment = "employed" | "self_employed" | "unemployed" | "retired" | "disability";
 export type Housing = "rent" | "own" | "living_with_family" | "homeless" | "other";
 
+export interface Alternative {
+  id: string;
+  label: string;
+  kind: "upload" | "form";
+  form?: "faf116_unemployed" | "faf116_shelter" | "housing_statement";
+  hint?: string;
+}
+
 export interface Policy {
   id: string;
   name: string;
@@ -38,7 +46,7 @@ export interface Policy {
     id: string;
     label: string;
     applies_when: string;
-    alternatives: string[];
+    alternatives: Alternative[];
     note?: string;
     source: string;
   }[];
@@ -71,9 +79,17 @@ export interface Answers {
 
 export type DocStatus = "provided" | "alternative" | "missing" | "counselor";
 
+export interface UploadedFile {
+  name: string;
+  type: string;
+  dataUrl: string;
+}
+
 export interface DocState {
   status: DocStatus;
   note?: string;
+  alternativeId?: string;
+  files?: UploadedFile[];
 }
 
 export type MedicaidScreening = "not_required" | "unknown" | "pending" | "completed";
@@ -99,10 +115,11 @@ export interface EligibilityResult {
 export interface RequiredDoc {
   id: string;
   label: string;
-  alternatives: string[];
+  alternatives: Alternative[];
   note?: string;
   status: DocStatus;
   statusNote?: string;
+  files?: UploadedFile[];
 }
 
 export interface ReadinessResult {

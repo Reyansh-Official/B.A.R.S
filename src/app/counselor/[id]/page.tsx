@@ -48,7 +48,10 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
           {s.readiness.documents.map((d) => (
             <li key={d.id} className="py-1">
               <b>{d.status}</b> · {d.label}
-              {d.statusNote && <span className="text-slate-500">: {d.statusNote}</span>}
+              {d.statusNote && <span className="block text-slate-600">{d.statusNote}</span>}
+              {d.files?.map((f, i) => (
+                <a key={i} href={f.dataUrl} download={f.name} className="block text-teal-700 underline">📎 {f.name}</a>
+              ))}
             </li>
           ))}
         </ul>
