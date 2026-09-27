@@ -276,7 +276,7 @@ export function DocCard({ doc, set, statedIncome, incomeHint, onUpdateIncome, sa
   );
 }
 
-export default function Documents({ policy, primaryBills, state, update, next, back }: StepProps) {
+export default function Documents({ policy, primaryBills, state, update, next, back, demoMode }: StepProps) {
   const { readiness } = screen(policy, primaryBills, state.answers, state.docs, state.medicaidStatus);
   const docs = readiness.documents.filter((d) => !SIGNATURES.includes(d.id));
   const done = docs.filter((d) => d.status !== "missing").length;
@@ -314,7 +314,7 @@ export default function Documents({ policy, primaryBills, state, update, next, b
           statedIncome={state.answers.annualIncome}
           onUpdateIncome={(annualIncome) => update({ answers: { ...state.answers, annualIncome } })}
           incomeHint={incomeHint}
-          samples={sampleDocs[d.id]}
+          samples={demoMode ? sampleDocs[d.id] : undefined}
         />
       ))}
       <p className="text-sm text-slate-500">You&apos;ll sign the application on the next screen.</p>

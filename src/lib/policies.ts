@@ -23,7 +23,8 @@ const publicDb = () =>
   createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, { auth: { persistSession: false } });
 const hasDb = () => Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 
-const TTL_MS = 60_000;
+// Policies change rarely, and approving a new version clears this cache immediately.
+const TTL_MS = 10 * 60_000;
 const cache = new Map<string, { at: number; value: LoadedPolicy | null }>();
 
 export async function getPolicy(hospitalId: string): Promise<LoadedPolicy | null> {
@@ -50,4 +51,17 @@ export async function listLiveHospitals(): Promise<HospitalSummary[]> {
   if (!hasDb()) return [{ id: "umms", name: (umms as unknown as Policy).name, aliases: [], state: "MD", assistancePhone: null, status: "live" }];
   const { data } = await publicDb().from("hospitals").select("id, name, aliases, state, assistance_phone, status").eq("status", "live").order("name");
   return (data ?? []).map((h) => ({ id: h.id, name: h.name, aliases: h.aliases, state: h.state, assistancePhone: h.assistance_phone, status: h.status }));
+}
+
+export interface PolicySource {
+  kind: string;
+  url: string;
+  title?: string;
+}
+
+// Source documents behind a hospital's approved policy (for the patient Q&A chat).
+export async function getPolicySources(hospitalId: string): Promise<PolicySource[]> {
+  if (!hasDb()) return [{ kind: "policy", url: (umms as unknown as Policy).policy.url }];
+  const { data } = await publicDb().from("policies").select("sources").eq("hospital_id", hospitalId).eq("status", "approved").maybeSingle();
+  return (data?.sources as PolicySource[] | undefined) ?? [];
 }

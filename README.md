@@ -12,7 +12,7 @@ npm run dev     # http://localhost:3000
 npm test        # rules engine against the demo cases
 ```
 
-- Patient flow (phone-sized): `/h/umms`. Use the "Demo…" menu to load Maria, James, or Aisha.
+- Patient flow (phone-sized): `/h/umms`. With `DEMO_MODE=true` in `.env.local`, a "Demo…" menu loads Maria, James, or Aisha, and sample bills, documents, and dashboard data become available. Leave it `false` for real patients.
 - Counselor dashboard (desktop): `/counselor` (sign-in required)
 
 ### Supabase setup (once)
@@ -43,6 +43,10 @@ npm run add-counselor -- you@hospital.org umms
 Cost controls (measured per import and written to the import log and `policy_imports.usage`): document search runs on Sonnet 5 with search only (no page fetches); large individual-clinician provider lists are skipped; extraction is a single Opus 5 read validated with zod (with a cheap repair pass if needed); retries reuse the links already found. Measured: $0.26 for extraction on Johns Hopkins, versus about $2.50 for the first MedStar import.
 
 Useful commands: `npm run seed-policies` (load hand-verified policies), `npm run retry-import -- <hospital-id> [--fresh]`, `npm run add-counselor -- <email> <hospital> --admin`.
+
+## "Ask about my bill" chat
+
+Patients can ask questions in any language from any screen. Answers are grounded in that hospital's approved policy PDF (Claude Sonnet 5 with citations), and each claim links to its page; hovering shows the policy's exact wording. It explains but never decides eligibility. The policy document is prompt-cached: the first question in a 5-minute window costs about $0.10, follow-ups about $0.01. Limited to 20 questions per visitor per hour and 500 characters per question (`src/app/api/ask`, `src/lib/ask.ts`).
 
 ## Security model
 

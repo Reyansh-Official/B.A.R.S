@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Patient } from "./demo";
-import type { Answers, Bill, DocState, MedicaidScreening, Screening } from "./types";
+import type { Answers, Bill, DocState, EligibilityResult, MedicaidScreening, ReadinessResult, Screening } from "./types";
 
 export type AppStatus = "submitted" | "info_requested" | "responded" | "in_review";
 
@@ -99,4 +99,59 @@ export async function listApplications(db: SupabaseClient, hospitalId: string): 
 
 export async function deleteSampleApplications(db: SupabaseClient, hospitalId: string) {
   check(await db.from("applications").delete().eq("hospital_id", hospitalId).eq("sample", true));
+}
+
+// Lists fetch only the fields each page shows; full records (with uploaded files) load one at a time.
+export interface QueueRow {
+  id: string;
+  status: AppStatus;
+  sample: boolean;
+  submittedAt: string;
+  patientName: string;
+  bills: Pick<Bill, "amountOwed">[];
+  eligibility: Pick<EligibilityResult, "status" | "discountPct">;
+  readiness: ReadinessResult["status"];
+}
+
+export async function listQueue(db: SupabaseClient, hospitalId: string): Promise<QueueRow[]> {
+  const data = check(
+    await db
+      .from("applications")
+      .select("id, status, sample, submitted_at, patient_name:data->patient->>name, bills:data->bills, eligibility:data->screening->eligibility, readiness:data->screening->readiness->>status")
+      .eq("hospital_id", hospitalId)
+      .order("submitted_at", { ascending: false }),
+  );
+  return (data as unknown as { id: string; status: AppStatus; sample: boolean; submitted_at: string; patient_name: string; bills: Bill[]; eligibility: EligibilityResult; readiness: ReadinessResult["status"] }[]).map((r) => ({
+    id: r.id,
+    status: r.status,
+    sample: r.sample,
+    submittedAt: r.submitted_at,
+    patientName: r.patient_name,
+    bills: r.bills,
+    eligibility: r.eligibility,
+    readiness: r.readiness,
+  }));
+}
+
+export type MetricsRow = Pick<Application, "status" | "sample" | "events" | "requests" | "docs" | "bills"> & {
+  screening: Pick<Screening, "coverage" | "eligibility" | "medicaid" | "estimatedOwed">;
+};
+
+export async function listForMetrics(db: SupabaseClient, hospitalId: string): Promise<MetricsRow[]> {
+  const data = check(
+    await db
+      .from("applications")
+      .select("status, sample, events:data->events, requests:data->requests, docs:data->docs, bills:data->bills, coverage:data->screening->coverage, eligibility:data->screening->eligibility, medicaid:data->screening->medicaid, estimated:data->screening->estimatedOwed")
+      .eq("hospital_id", hospitalId),
+  );
+  type Raw = Pick<MetricsRow, "status" | "sample" | "events" | "requests" | "docs" | "bills"> & { coverage: Screening["coverage"]; eligibility: Screening["eligibility"]; medicaid: Screening["medicaid"]; estimated: Screening["estimatedOwed"] };
+  return (data as unknown as Raw[]).map((r) => ({
+    status: r.status,
+    sample: r.sample,
+    events: r.events ?? [],
+    requests: r.requests ?? [],
+    docs: r.docs ?? {},
+    bills: r.bills ?? [],
+    screening: { coverage: r.coverage ?? [], eligibility: r.eligibility, medicaid: r.medicaid ?? undefined, estimatedOwed: r.estimated ?? {} },
+  }));
 }

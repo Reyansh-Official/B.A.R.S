@@ -2,11 +2,13 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import AutoRefresh from "@/components/AutoRefresh";
 import SampleDataControls from "@/components/counselor/SampleDataControls";
+import { isDemoMode } from "@/lib/demo-mode";
 import { computeMetrics } from "@/lib/metrics";
 import { counselorStatus } from "@/lib/status";
 import type { AppStatus } from "@/lib/store";
 import { requireCounselor } from "@/lib/auth";
-import { listApplications } from "@/lib/store";
+import { getPolicy } from "@/lib/policies";
+import { listForMetrics } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
 
 // Categorical slots 1-4 of the validated reference palette, in fixed order (adjacent pairs pass CVD checks).
@@ -42,7 +44,8 @@ const hours = (h: number | null) => (h == null ? "–" : h < 48 ? `${Math.round(
 export default async function ImpactPage() {
   await connection();
   const counselor = await requireCounselor("/counselor/impact");
-  const m = computeMetrics(await listApplications(await createClient(), counselor.hospitalId));
+  const [rows, loaded] = await Promise.all([listForMetrics(await createClient(), counselor.hospitalId), getPolicy(counselor.hospitalId)]);
+  const m = computeMetrics(rows, Object.fromEntries((loaded?.policy.documents ?? []).map((d) => [d.id, d.label])));
   const maxReason = Math.max(1, ...m.followUpReasons.map((r) => r.count));
 
   return (
@@ -52,7 +55,7 @@ export default async function ImpactPage() {
         <h1 className="text-2xl font-bold">Impact</h1>
         <p className="text-slate-600">Is B.A.R.S. getting applications to review-ready with less back-and-forth?</p>
       </div>
-      <SampleDataControls sampleCount={m.sampleCount} />
+      <SampleDataControls demoMode={isDemoMode()} sampleCount={m.sampleCount} />
 
       {m.total === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">No applications yet.</p>

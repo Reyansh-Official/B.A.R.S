@@ -1,4 +1,4 @@
-import type { AppStatus, Application } from "./store";
+import type { AppStatus, MetricsRow } from "./store";
 
 export interface Metrics {
   total: number;
@@ -25,7 +25,8 @@ const median = (xs: number[]) => {
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 };
 
-export function computeMetrics(apps: Application[]): Metrics {
+// `labels` maps document ids to names (from the hospital policy) for the follow-up chart.
+export function computeMetrics(apps: MetricsRow[], labels: Record<string, string> = {}): Metrics {
   const statusCounts: Record<AppStatus, number> = { submitted: 0, info_requested: 0, responded: 0, in_review: 0 };
   const reasons = new Map<string, number>();
   const hoursToReview: number[] = [];
@@ -43,7 +44,6 @@ export function computeMetrics(apps: Application[]): Metrics {
     const reviewed = events.find((e) => e.type === "in_review");
     if (submitted && reviewed) hoursToReview.push((Date.parse(reviewed.at) - Date.parse(submitted.at)) / 3_600_000);
 
-    const labels = Object.fromEntries(app.screening.readiness.documents.map((d) => [d.id, d.label]));
     for (const r of app.requests ?? []) {
       requests++;
       for (const id of r.docIds) reasons.set(labels[id] ?? id, (reasons.get(labels[id] ?? id) ?? 0) + 1);

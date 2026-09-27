@@ -13,6 +13,7 @@ import Results from "./steps/Results";
 import Documents from "./steps/Documents";
 import Review from "./steps/Review";
 import Submitted from "./steps/Submitted";
+import AskChat from "./AskChat";
 
 export interface FlowState {
   patient: Patient;
@@ -43,6 +44,7 @@ export interface StepProps {
   groups: BillGroup[];
   policies: Record<string, Policy>;
   homePolicyId: string;
+  demoMode: boolean;
   state: FlowState;
   update: (patch: Partial<FlowState>) => void;
   next: () => void;
@@ -79,7 +81,7 @@ const emptyState: FlowState = {
   medicaidStatus: "unknown",
 };
 
-export default function PatientFlow({ policy, demoCases }: { policy: Policy; demoCases: DemoCase[] }) {
+export default function PatientFlow({ policy, demoCases, demoMode }: { policy: Policy; demoCases: DemoCase[]; demoMode: boolean }) {
   const [step, setStep] = useState(0);
   const [state, setState] = useState<FlowState>(emptyState);
   const update = (patch: Partial<FlowState>) => setState((s) => ({ ...s, ...patch }));
@@ -102,7 +104,7 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
 
   const { name, Component } = steps[step];
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-4 px-4 pb-8 pt-4">
+    <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-4 px-4 pb-24 pt-4">
       <header className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-white"><HeartHandshake className="h-5 w-5" aria-hidden /></span>
@@ -111,6 +113,7 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
             <p className="text-xs text-slate-500">{policy.name}</p>
           </div>
         </div>
+        {demoMode && (
         <select
           aria-label="Load demo patient"
           className="max-w-32 rounded-full border border-dashed border-slate-300 bg-transparent px-2 py-1 text-xs text-slate-500"
@@ -124,6 +127,7 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
             </option>
           ))}
         </select>
+        )}
       </header>
       {step > 0 && (
         <div>
@@ -137,6 +141,20 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
           </p>
         </div>
       )}
+      {step >= 1 && (
+        <AskChat
+          hospitalId={primaryPolicy.id}
+          hospitalName={primaryPolicy.name}
+          phone={primaryPolicy.contact.phone}
+          context={
+            // Only what helps answer: which bills, which program, household size, and insurance. No names or IDs.
+            [
+              state.bills.length ? `Bills: ${state.bills.map((b) => `${b.billerName} $${b.amountOwed.toLocaleString()} (${state.resolutions?.[b.id]?.kind === "separate_program" ? "separate program" : "hospital policy"})`).join("; ")}.` : "No bills uploaded yet.",
+              state.answered?.length || state.prefilled ? `Household of ${state.answers.householdSize}; ${state.answers.insured ? "has" : "no"} health insurance.` : "",
+            ].join(" ")
+          }
+        />
+      )}
       <div key={step} className="flex animate-enter flex-col gap-4">
         <Component
           policy={primaryPolicy}
@@ -144,6 +162,7 @@ export default function PatientFlow({ policy, demoCases }: { policy: Policy; dem
           groups={groups}
           policies={policies}
           homePolicyId={policy.id}
+          demoMode={demoMode}
           state={state}
           update={update}
           next={() => setStep((s) => Math.min(s + 1, steps.length - 1))}

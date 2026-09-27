@@ -35,7 +35,7 @@ const blankBill = (): Bill => ({
   uncertainFields: ["billerName", "accountNumber", "serviceDate", "amountOwed"],
 });
 
-export default function Upload({ state, update, next, back, policies, homePolicyId }: StepProps) {
+export default function Upload({ state, update, next, back, policies, homePolicyId, demoMode }: StepProps) {
   const input = useRef<HTMLInputElement>(null);
   const [reading, setReading] = useState(false);
   const [error, setError] = useState("");
@@ -156,6 +156,7 @@ export default function Upload({ state, update, next, back, policies, homePolicy
         </div>
       )}
 
+      {demoMode && (
       <details className="text-sm text-slate-600">
         <summary className="cursor-pointer">Try a sample bill</summary>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -166,6 +167,7 @@ export default function Upload({ state, update, next, back, policies, homePolicy
           ))}
         </div>
       </details>
+      )}
 
       <Nav next={next} back={back} nextDisabled={reading || state.bills.length === 0} />
     </>

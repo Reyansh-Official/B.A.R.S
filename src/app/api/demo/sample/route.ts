@@ -1,5 +1,6 @@
 import { unauthorized } from "@/lib/access";
 import { getCounselor } from "@/lib/auth";
+import { isDemoMode } from "@/lib/demo-mode";
 import { getPolicy } from "@/lib/policies";
 import { medicaidProgram } from "@/lib/programs";
 import { buildSampleApplications } from "@/lib/sample-data";
@@ -9,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST() {
   const counselor = await getCounselor();
   if (!counselor) return unauthorized();
+  if (!isDemoMode()) return Response.json({ error: "Sample data is only available in demo mode" }, { status: 403 });
   const db = await createClient();
   await deleteSampleApplications(db, counselor.hospitalId);
   const loaded = await getPolicy(counselor.hospitalId);

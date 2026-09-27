@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function SampleDataControls({ sampleCount }: { sampleCount: number }) {
+export default function SampleDataControls({ sampleCount, demoMode }: { sampleCount: number; demoMode: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const run = async (method: "POST" | "DELETE") => {
@@ -17,7 +17,7 @@ export default function SampleDataControls({ sampleCount }: { sampleCount: numbe
       <span><b>Includes {sampleCount} sample applications</b> (synthetic, for demonstration). Real applications are counted alongside them.</span>
       <button disabled={busy} onClick={() => run("DELETE")} className="font-semibold underline">Clear sample data</button>
     </div>
-  ) : (
+  ) : !demoMode ? null : (
     <button disabled={busy} onClick={() => run("POST")} className="self-start rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-50">
       {busy ? "Loading…" : "Load sample data"}
     </button>
