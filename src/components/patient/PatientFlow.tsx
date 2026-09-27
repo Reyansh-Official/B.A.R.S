@@ -110,7 +110,7 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-white"><HeartHandshake className="h-5 w-5" aria-hidden /></span>
           <div className="leading-tight">
             <p className="text-sm font-semibold tracking-wide text-slate-900">B.A.R.S.</p>
-            <p className="text-xs text-slate-500">{policy.name}</p>
+            <p className="text-xs text-slate-500">{primaryPolicy.name}</p>
           </div>
         </div>
         {demoMode && (
