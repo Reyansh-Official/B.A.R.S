@@ -1,4 +1,5 @@
 import { getPolicy } from "@/lib/policies";
+import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
 import { getApplication, saveApplication, type Application } from "@/lib/store";
 import type { DocState, MedicaidScreening } from "@/lib/types";
@@ -57,6 +58,6 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
       return Response.json({ error: "Unknown action" }, { status: 400 });
   }
 
-  next.screening = screen(policy, next.bills, next.answers, next.docs, next.medicaidStatus);
+  next.screening = screen(policy, next.bills, next.answers, next.docs, next.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(next.patient.dob) });
   return Response.json(saveApplication(next));
 }

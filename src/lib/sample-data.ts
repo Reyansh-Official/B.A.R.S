@@ -1,5 +1,6 @@
 import { screen } from "./rules.ts";
 import type { AppEvent, Application, AppStatus } from "./store";
+import type { MedicaidProgram } from "./medicaid.ts";
 import type { Answers, Bill, DocState, Policy } from "./types";
 
 // Deterministic so the demo dashboard looks the same every time it's loaded.
@@ -13,7 +14,7 @@ function rng(seed: number) {
 const first = ["Ana", "Marcus", "Keisha", "Luis", "Tanya", "Derrick", "Mei", "Samuel", "Rosa", "Andre", "Priya", "Jamal", "Carmen", "Victor", "Lena", "Tyrone", "Grace", "Hector", "Nadia", "Curtis", "Imani", "Paul", "Yolanda", "Kevin"];
 const last = ["Brooks", "Diaz", "Nguyen", "Johnson", "Patel", "Coleman", "Reyes", "Ward", "Okafor", "Hughes", "Lopez", "Price"];
 
-export function buildSampleApplications(policy: Policy, count = 24, now = new Date()): Application[] {
+export function buildSampleApplications(policy: Policy, count = 24, now = new Date(), medicaid?: MedicaidProgram): Application[] {
   const r = rng(20260926);
   const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
   const apps: Application[] = [];
@@ -54,7 +55,7 @@ export function buildSampleApplications(policy: Policy, count = 24, now = new Da
     if (docs.housing.status === "missing") delete docs.housing;
 
     const medicaidStatus = insured ? "not_required" : pick(["unknown", "pending", "completed", "completed"] as const);
-    let screening = screen(policy, bills, answers, docs, medicaidStatus);
+    let screening = screen(policy, bills, answers, docs, medicaidStatus, { medicaid, today: now });
     const submittedAt = new Date(now.getTime() - (1 + r() * 20) * 86_400_000);
     const events: AppEvent[] = [{ type: "submitted", at: submittedAt.toISOString(), missingCount: screening.readiness.missing.length }];
     const hoursLater = (h: number) => new Date(submittedAt.getTime() + h * 3_600_000).toISOString();
@@ -72,7 +73,7 @@ export function buildSampleApplications(policy: Policy, count = 24, now = new Da
         requests[0].resolvedAt = hoursLater(replied);
         events.push({ type: "responded", at: hoursLater(replied) });
         for (const id of missingIds) docs[id] = { status: "provided" };
-        screening = screen(policy, bills, answers, docs, medicaidStatus);
+        screening = screen(policy, bills, answers, docs, medicaidStatus, { medicaid, today: now });
         status = "responded";
         if (r() < 0.7) {
           events.push({ type: "in_review", at: hoursLater(replied + 1 + r() * 20) });

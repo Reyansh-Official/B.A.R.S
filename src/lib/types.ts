@@ -1,3 +1,5 @@
+import type { MedicaidPrescreen } from "./medicaid";
+
 export type Employment = "employed" | "self_employed" | "unemployed" | "retired" | "disability";
 export type Housing = "rent" | "own" | "living_with_family" | "homeless" | "other";
 
@@ -81,6 +83,9 @@ export interface Answers {
   housing: Housing;
   thirdPartyInjury: boolean;
   appliedForMedicaid: boolean;
+  pregnant?: boolean;
+  over65?: boolean;
+  childrenUnder19?: boolean;
 }
 
 export type DocStatus = "provided" | "alternative" | "missing" | "counselor";
@@ -154,5 +159,6 @@ export interface Screening {
   eligibility: EligibilityResult;
   readiness: ReadinessResult;
   medicaidScreening: MedicaidScreening;
+  medicaid?: MedicaidPrescreen;
   estimatedOwed: Record<string, number | null>;
 }

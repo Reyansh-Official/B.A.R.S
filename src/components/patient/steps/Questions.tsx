@@ -155,6 +155,36 @@ const questions: Question[] = [
     render: ({ a, set, answered }) => <Choice options={yesNo} value={answered ? a.insured : undefined} onChange={(insured) => set({ insured })} />,
   },
   {
+    id: "about",
+    title: "Do any of these apply?",
+    help: "Some programs have higher income limits for these. Choose all that apply.",
+    show: (s) => !s.answers.insured,
+    render: ({ a, set, answered }) => {
+      const opts = [
+        { key: "pregnant", label: "I'm pregnant" },
+        { key: "childrenUnder19", label: "There are children under 19 in my household" },
+        { key: "over65", label: "I'm 65 or older" },
+      ] as const;
+      const none = answered && opts.every((o) => !a[o.key]);
+      return (
+        <div className="flex flex-col gap-2">
+          {opts.map((o) => (
+            <label key={o.key} className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 ${a[o.key] ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
+              <input type="checkbox" className="h-5 w-5 accent-teal-700" checked={Boolean(a[o.key])} onChange={() => set({ [o.key]: !a[o.key] })} />
+              <span className="font-semibold">{o.label}</span>
+            </label>
+          ))}
+          <button
+            onClick={() => set({ pregnant: false, childrenUnder19: false, over65: false })}
+            className={`rounded-xl border-2 px-4 py-3 text-left font-semibold ${none ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}
+          >
+            None of these
+          </button>
+        </div>
+      );
+    },
+  },
+  {
     id: "medicaid",
     title: "Have you applied for Medicaid?",
     help: "The hospital checks Medicaid first for patients without insurance. It may cover this bill.",

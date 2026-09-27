@@ -63,11 +63,12 @@ export default async function ImpactPage() {
 
           <section>
             <h2 className="mb-2 font-semibold">Handled before a counselor stepped in</h2>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
               <Tile label="Documents checked on upload" value={m.docsChecked} sub={`${m.docsFlagged} flagged to the patient right away`} />
               <Tile label="Missing documents replaced" value={m.alternativesUsed} sub="With alternatives the policy accepts, e.g. FAF 116" />
               <Tile label="Physician bills routed" value={m.billsRouted} sub="Sent to the physician group's own program" />
               <Tile label="Qualified automatically" value={m.presumptive} sub="SNAP, WIC, Medicaid, energy assistance" />
+              <Tile label="Pointed to Medicaid first" value={m.medicaidFirst} sub="Uninsured and within reach of Medicaid, which can cover the whole visit" />
             </div>
           </section>
 

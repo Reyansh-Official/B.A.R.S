@@ -86,3 +86,21 @@ See [`demo-cases/cases.json`](../demo-cases/cases.json). Bills are in `demo-case
 | Maria Santos | Household 3, $52k, insured, has all documents | Covered, free care, only signature missing |
 | James Carter | Household 1, laid off, $22.2k unemployment, uninsured, lives with sister | Covered, free care; pay stubs and rent bill replaced by alternatives; Medicaid screening flagged |
 | Aisha Rahman | Household 4, $98k, insured; hospital bill + FPI physician bill | Hospital: 70% off ($4,850 to $1,455). Physician bill: separate program, call 410-528-5710. Missing spouse pay stubs and signature |
+
+## Maryland Medicaid pre-screen
+
+Machine-readable: [`policies/programs/md-medicaid.json`](../policies/programs/md-medicaid.json). Verified 2026-09-26. Runs only for uninsured patients; financial assistance still applies either way.
+
+| Group | Limit | Monthly, household of 1 / 4 | Source |
+|---|---|---|---|
+| Adults 19-64, no Medicare | 138% FPL | $1,835 / $3,795 | [MD Dept. of Health income limits](https://health.maryland.gov/mmcp/eligibility/Pages/incomelimits.aspx) (effective 2026-02-01); [coverage group guide](https://health.maryland.gov/mmcp/Coverage%20Groups/coverage-group-quick-reference-guide.pdf) |
+| Pregnant (pregnancy counts in household) | 264% FPL | from $4,763 (size 2) | same |
+| Children under 19 (Medicaid + MCHP) | 322% FPL | $4,283 / $8,855 | same |
+| 65+ / blind / disabled | $350/month (size 1) | not screened; different programs | same |
+
+- 2026 poverty guideline: $15,960 for 1, +$5,680 per person ([HHS/ASPE](https://aspe.hhs.gov/sites/default/files/documents/b1bfa16b20ae9b89d525bc35de7c1643/detailed-guidelines-2026.pdf)). Every monthly limit above matches pct × FPL ÷ 12 within rounding.
+- **Retroactive coverage:** up to 3 calendar months before the month of application ([Maryland Health Connection](https://www.marylandhealthconnection.gov/glossaryslug/retroactive-medicaid/)). From **2027-01-01**: 1 month for expansion adults, 2 for other groups ([KFF](https://www.kff.org/medicaid/health-provisions-in-the-2025-federal-budget-reconciliation-law/), [MD Benefits Counseling Network](https://mdbenefitscounseling.org/uncategorized/no-going-back-medicaid-retroactive-eligibility-span-reduced/)). The app computes an "apply by" date per bill.
+- Income slightly over the limit is shown as "might still qualify" (within 10%): Medicaid counts income after some pre-tax deductions, and MDH notes people above the listed limit may still be eligible.
+- Not screened (counselor/state decides): citizenship and immigration status (narrowed 2026-10-01), adult work requirements (by 2027).
+- Apply: [marylandhealthconnection.gov](https://www.marylandhealthconnection.gov/how-to-enroll/medicaid/) or 1-855-642-8572 (Mon-Fri 8-6, 200+ languages).
+- UMMS policy (p.4) already requires a Medicaid check for self-pay patients before financial assistance.

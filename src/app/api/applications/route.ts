@@ -1,4 +1,5 @@
 import { getPolicy } from "@/lib/policies";
+import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
 import { listApplications, saveApplication, type Application } from "@/lib/store";
 
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
   if (!policy) return Response.json({ error: "Unknown hospital" }, { status: 404 });
 
   // Re-screen on the server so the counselor sees results from the rules engine, not whatever the client sent.
-  const screening = screen(policy, body.bills, body.answers, body.docs, body.medicaidStatus);
+  const screening = screen(policy, body.bills, body.answers, body.docs, body.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(body.patient?.dob ?? "") });
   const app: Application = {
     id: crypto.randomUUID().slice(0, 8),
     hospitalId: policy.id,

@@ -10,6 +10,7 @@ import type {
   RequiredDoc,
   Screening,
 } from "./types";
+import { prescreenMedicaid, type MedicaidProgram } from "./medicaid.ts";
 
 // Deterministic screening only: every result must trace to a rule in the policy file, never to model output.
 
@@ -182,6 +183,7 @@ export function screen(
   answers: Answers,
   docs: Record<string, DocState>,
   medicaidStatus: MedicaidScreening = "unknown",
+  options: { medicaid?: MedicaidProgram; today?: Date; patientAge?: number } = {},
 ): Screening {
   const coverage = bills.map((b) => classifyBill(policy, b));
   const coveredDebt = bills
@@ -190,6 +192,13 @@ export function screen(
   const eligibility = screenEligibility(policy, answers, coveredDebt);
   const medicaidScreening: MedicaidScreening = answers.insured ? "not_required" : medicaidStatus;
   const readiness = assessReadiness(policy, answers, eligibility, docs, medicaidScreening);
+  const medicaid = options.medicaid ? prescreenMedicaid(options.medicaid, answers, bills, options.today, options.patientAge) : undefined;
+  if (medicaid && (medicaid.status === "likely" || medicaid.status === "possible") && medicaidScreening !== "completed") {
+    readiness.flags.unshift(
+      `${medicaid.status === "likely" ? "Likely" : "Possibly"} eligible for Medicaid: help the patient apply first${medicaid.applyBy ? ` (by ${medicaid.applyBy} so it can cover this visit)` : ""}.`,
+    );
+    if (readiness.status !== "counselor_review") readiness.status = "counselor_review";
+  }
 
   const estimatedOwed: Record<string, number | null> = {};
   bills.forEach((b, i) => {
@@ -206,6 +215,7 @@ export function screen(
     eligibility,
     readiness,
     medicaidScreening,
+    medicaid,
     estimatedOwed,
   };
 }

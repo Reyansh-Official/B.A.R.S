@@ -14,6 +14,7 @@ export interface Metrics {
   alternativesUsed: number;
   billsRouted: number;
   presumptive: number;
+  medicaidFirst: number;
   screenedReduction: number;
 }
 
@@ -29,7 +30,7 @@ export function computeMetrics(apps: Application[]): Metrics {
   const reasons = new Map<string, number>();
   const hoursToReview: number[] = [];
   let firstTimeKnown = 0, firstTimeComplete = 0, requests = 0;
-  let docsChecked = 0, docsFlagged = 0, alternativesUsed = 0, billsRouted = 0, presumptive = 0, screenedReduction = 0;
+  let docsChecked = 0, docsFlagged = 0, alternativesUsed = 0, billsRouted = 0, presumptive = 0, medicaidFirst = 0, screenedReduction = 0;
 
   for (const app of apps) {
     statusCounts[app.status]++;
@@ -55,6 +56,7 @@ export function computeMetrics(apps: Application[]): Metrics {
     }
     billsRouted += app.screening.coverage.filter((c) => c.status === "separate_program").length;
     if (app.screening.eligibility.status === "presumptive") presumptive++;
+    if (app.screening.medicaid?.status === "likely" || app.screening.medicaid?.status === "possible") medicaidFirst++;
     for (const b of app.bills) {
       const after = app.screening.estimatedOwed[b.id];
       if (after != null) screenedReduction += b.amountOwed - after;
@@ -75,6 +77,7 @@ export function computeMetrics(apps: Application[]): Metrics {
     alternativesUsed,
     billsRouted,
     presumptive,
+    medicaidFirst,
     screenedReduction: Math.round(screenedReduction),
   };
 }

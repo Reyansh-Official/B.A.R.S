@@ -1,0 +1,90 @@
+{
+  "id": "md-medicaid",
+  "name": "Maryland Medicaid",
+  "effective": "2026-02-01",
+  "verified": "2026-09-26",
+  "sources": {
+    "income_limits": "https://health.maryland.gov/mmcp/eligibility/Pages/incomelimits.aspx",
+    "coverage_groups": "https://health.maryland.gov/mmcp/Coverage%20Groups/coverage-group-quick-reference-guide.pdf",
+    "poverty_guidelines": "https://aspe.hhs.gov/sites/default/files/documents/b1bfa16b20ae9b89d525bc35de7c1643/detailed-guidelines-2026.pdf",
+    "retroactive": "https://www.marylandhealthconnection.gov/glossaryslug/retroactive-medicaid/",
+    "retroactive_2027": "https://www.kff.org/medicaid/health-provisions-in-the-2025-federal-budget-reconciliation-law/",
+    "apply": "https://www.marylandhealthconnection.gov/how-to-enroll/medicaid/"
+  },
+  "fpl_2026": {
+    "by_household_size": {
+      "1": 15960,
+      "2": 21640,
+      "3": 27320,
+      "4": 33000,
+      "5": 38680,
+      "6": 44360,
+      "7": 50040,
+      "8": 55720
+    },
+    "each_additional": 5680
+  },
+  "groups": {
+    "adult": {
+      "label": "Adults 19 to 64 without Medicare",
+      "pct_fpl": 138,
+      "monthly_limit": {
+        "1": 1835,
+        "2": 2490,
+        "3": 3142,
+        "4": 3795,
+        "5": 4449,
+        "6": 5102,
+        "7": 5755,
+        "8": 6409
+      }
+    },
+    "pregnant": {
+      "label": "Pregnant people (the pregnancy counts in household size)",
+      "pct_fpl": 264,
+      "monthly_limit": {
+        "2": 4763,
+        "3": 6011,
+        "4": 7260,
+        "5": 8511,
+        "6": 9760,
+        "7": 11009,
+        "8": 12260
+      }
+    },
+    "child": {
+      "label": "Children under 19 (Medicaid and MCHP)",
+      "pct_fpl": 322,
+      "monthly_limit": {
+        "1": 4283,
+        "2": 5809,
+        "3": 7332,
+        "4": 8855,
+        "5": 10381,
+        "6": 11904,
+        "7": 13427,
+        "8": 14954
+      }
+    }
+  },
+  "possible_margin_pct": 10,
+  "possible_margin_reason": "Medicaid counts income after some pre-tax deductions, and Maryland notes people above the listed limit may still qualify.",
+  "retroactive": {
+    "months_before_application_month": 3,
+    "change_on": "2027-01-01",
+    "after_change": {
+      "adult": 1,
+      "other": 2
+    }
+  },
+  "apply": {
+    "url": "https://www.marylandhealthconnection.gov",
+    "phone": "1-855-642-8572",
+    "hours": "Mon-Fri 8am-6pm, help in 200+ languages"
+  },
+  "not_screened": [
+    "Citizenship and immigration status (rules narrow on October 1, 2026)",
+    "Work or community-engagement requirements for adults (starting by 2027)",
+    "People 65+ or with Medicare use different programs"
+  ]
+}

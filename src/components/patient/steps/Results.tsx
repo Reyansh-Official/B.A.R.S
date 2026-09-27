@@ -1,7 +1,9 @@
-import { AlertTriangle, CheckCircle2, ChevronDown, Info, Phone } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronDown, ExternalLink, Info, Phone, ShieldPlus } from "lucide-react";
 import type { ReactNode } from "react";
 import { money } from "@/components/ui";
+import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
+import type { Bill, Screening } from "@/lib/types";
 import type { StepProps } from "../PatientFlow";
 import Nav from "./Nav";
 
@@ -58,8 +60,56 @@ function StatusCard({ n, question, tone, badge, children, why }: { n: number; qu
   );
 }
 
+const fmtDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+
+function MedicaidCard({ m, bills }: { m: NonNullable<Screening["medicaid"]>; bills: Bill[] }) {
+  const p = medicaidProgram;
+  const covered = bills.filter((b) => m.coveredBills.some((c) => c.billId === b.id));
+  return (
+    <section className="rounded-3xl border-2 border-violet-300 bg-violet-50 p-5">
+      <div className="flex items-start gap-3">
+        <ShieldPlus className="mt-0.5 h-6 w-6 shrink-0 text-violet-700" aria-hidden />
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-wide text-violet-700">{m.status === "likely" ? "Even better" : "Worth checking"}</p>
+          <h2 className="text-xl font-bold text-slate-900">You {m.status === "likely" ? "may qualify" : "might still qualify"} for Maryland Medicaid</h2>
+        </div>
+      </div>
+      <p className="mt-3 text-sm text-slate-700">{m.reason}</p>
+      <ul className="mt-4 flex flex-col gap-2 text-sm text-slate-800">
+        {covered.length > 0 && (
+          <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-violet-700" aria-hidden />
+            It can pay bills from up to {p.retroactive.months_before_application_month} months before you apply, including this visit.
+          </li>
+        )}
+        <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-violet-700" aria-hidden />It covers doctors&apos; bills too, not just the hospital.</li>
+        <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-violet-700" aria-hidden />It&apos;s health coverage going forward, so future visits are covered.</li>
+      </ul>
+      {m.applyBy && (
+        <p className="mt-4 rounded-xl bg-white p-3 text-sm font-semibold text-violet-900">
+          Apply by {fmtDate(m.applyBy)} so Medicaid can cover your {fmtDate(covered[0]?.serviceDate ?? m.applyBy)} visit.
+        </p>
+      )}
+      {m.childrenMayQualify && (
+        <p className="mt-3 text-sm text-slate-700">Your children under 19 may also qualify for free or low-cost coverage through MCHP.</p>
+      )}
+      <div className="mt-4 flex flex-col gap-2">
+        <a href={p.apply.url} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 py-3 font-semibold text-white">
+          Apply at Maryland Health Connection <ExternalLink className="h-4 w-4" aria-hidden />
+        </a>
+        <a href={`tel:${p.apply.phone}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-violet-300 bg-white px-4 py-3 font-semibold text-violet-900">
+          <Phone className="h-4 w-4" aria-hidden /> Call {p.apply.phone}
+        </a>
+      </div>
+      <p className="mt-3 text-xs text-slate-500">
+        {p.apply.hours}. Your counselor can help you apply. This doesn&apos;t check citizenship or immigration status or work rules; the state decides.
+        Financial assistance below still applies either way.
+      </p>
+    </section>
+  );
+}
+
 export default function Results({ policy, state, next, back }: StepProps) {
-  const r = screen(policy, state.bills, state.answers, state.docs, state.medicaidStatus);
+  const r = screen(policy, state.bills, state.answers, state.docs, state.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(state.patient.dob) });
   const byId = Object.fromEntries(state.bills.map((b) => [b.id, b]));
   const estimated = state.bills.filter((b) => r.estimatedOwed[b.id] != null);
   const before = estimated.reduce((s, b) => s + b.amountOwed, 0);
@@ -93,6 +143,8 @@ export default function Results({ policy, state, next, back }: StepProps) {
           <p className="mt-1 text-sm text-slate-600">{r.eligibility.reason}</p>
         </div>
       )}
+
+      {r.medicaid && (r.medicaid.status === "likely" || r.medicaid.status === "possible") && <MedicaidCard m={r.medicaid} bills={state.bills} />}
 
       {separate.map((c) => (
         <div key={c.billId} className="flex gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">

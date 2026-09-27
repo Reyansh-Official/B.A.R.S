@@ -73,6 +73,18 @@ export default async function ApplicationPacket({ params }: PageProps<"/counselo
         <p className="mt-2 text-sm text-slate-700">{s.eligibility.reason}</p>
         <p className="mt-1 text-xs text-slate-500">Rule: {s.eligibility.source}</p>
         <p className="mt-3 text-sm">Medicaid screening: <b>{s.medicaidScreening.replaceAll("_", " ")}</b></p>
+        {s.medicaid && s.medicaid.status !== "not_applicable" && (
+          <div className={`mt-3 rounded-lg p-3 text-sm ${s.medicaid.status === "unlikely" ? "bg-slate-50 text-slate-700" : "bg-violet-50 text-violet-950"}`}>
+            <p className="font-semibold">
+              Medicaid pre-screen: {s.medicaid.status === "likely" ? "likely eligible" : s.medicaid.status === "possible" ? "possibly eligible" : "unlikely"}
+              {s.medicaid.groupLabel && <span className="font-normal"> · {s.medicaid.groupLabel}, {s.medicaid.pctFpl}% FPL</span>}
+            </p>
+            <p className="mt-1">{s.medicaid.reason}</p>
+            {s.medicaid.applyBy && s.medicaid.status !== "unlikely" && (
+              <p className="mt-1 font-medium">Retroactive coverage reaches this visit if they apply by {s.medicaid.applyBy}. Help them apply first; financial assistance remains the backup.</p>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card>
