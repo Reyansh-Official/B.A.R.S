@@ -46,7 +46,11 @@ export default function Upload({ state, update, next, back }: StepProps) {
       };
       update({
         bills: [...state.bills, bill],
-        patient: state.patient.name ? state.patient : { ...state.patient, name: data.patientName ?? "" },
+        patient: {
+          ...state.patient,
+          name: state.patient.name || data.patientName || "",
+          address: state.patient.address || data.patientAddress || "",
+        },
       });
     } catch {
       setError("Something went wrong. Check your connection and try again.");

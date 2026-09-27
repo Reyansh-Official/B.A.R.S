@@ -8,6 +8,7 @@ export const ExtractedBill = z.object({
   billerPhone: z.string().nullable(),
   accountNumber: z.string().nullable(),
   patientName: z.string().nullable(),
+  patientAddress: z.string().nullable().describe("Patient mailing address on one line"),
   serviceDate: z.string().nullable().describe("Date of service as YYYY-MM-DD"),
   statementDate: z.string().nullable().describe("Statement date as YYYY-MM-DD"),
   amountOwed: z.number().nullable().describe("Amount the patient currently owes, after insurance"),
