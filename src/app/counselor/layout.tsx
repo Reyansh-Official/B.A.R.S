@@ -1,6 +1,7 @@
 import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 import CounselorNav from "@/components/counselor/CounselorNav";
+import { LogoMark } from "@/components/Logo";
 import { requireCounselor } from "@/lib/auth";
 import { getPolicy } from "@/lib/policies";
 import { signOut } from "../login/actions";
@@ -11,7 +12,8 @@ export default async function CounselorLayout({ children }: { children: ReactNod
     <div className="flex min-h-full flex-col">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <p className="font-semibold text-teal-700">
+          <p className="flex items-center gap-2 font-semibold text-teal-700">
+            <LogoMark size={28} />
             B.A.R.S. <span className="font-normal text-slate-500">· {(await getPolicy(counselor.hospitalId))?.policy.name ?? counselor.hospitalId}</span>
           </p>
           <div className="flex items-center gap-4">

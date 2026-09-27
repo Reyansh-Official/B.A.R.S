@@ -1,6 +1,6 @@
 "use client";
 
-import { HeartHandshake } from "lucide-react";
+import { LogoMark } from "@/components/Logo";
 import { useEffect, useState } from "react";
 import type { DemoCase, Patient } from "@/lib/demo";
 import { groupBills, type BillGroup, type BillResolution } from "@/lib/groups";
@@ -107,7 +107,7 @@ export default function PatientFlow({ policy, demoCases, demoMode }: { policy: P
     <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-4 px-4 pb-24 pt-4">
       <header className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-white"><HeartHandshake className="h-5 w-5" aria-hidden /></span>
+          <LogoMark size={40} />
           <div className="leading-tight">
             <p className="text-sm font-semibold tracking-wide text-slate-900">B.A.R.S.</p>
             <p className="text-xs text-slate-500">{primaryPolicy.name}</p>

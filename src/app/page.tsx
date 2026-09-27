@@ -1,5 +1,6 @@
-import { ArrowRight, BadgeCheck, Camera, FileCheck2, HeartHandshake, ListChecks, ScrollText, Send, Stethoscope } from "lucide-react";
+import { ArrowRight, BadgeCheck, Camera, FileCheck2, ListChecks, ScrollText, Send, Stethoscope } from "lucide-react";
 import Link from "next/link";
+import { LogoMark } from "@/components/Logo";
 import { redirect } from "next/navigation";
 import QRCode from "qrcode";
 import { getPolicy } from "@/lib/policies";
@@ -29,7 +30,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     <main className="flex flex-col">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
         <p className="flex items-center gap-2 text-teal-800">
-          <HeartHandshake className="h-6 w-6" aria-hidden />
+          <LogoMark size={36} />
           <span className="text-lg font-semibold tracking-wide">B.A.R.S.</span>
           <span className="hidden text-sm text-slate-500 sm:inline">Bill Accessibility &amp; Relief System</span>
         </p>
