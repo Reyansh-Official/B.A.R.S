@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     status: "submitted",
     messages: [],
     requests: [],
+    events: [{ type: "submitted", at: new Date().toISOString(), missingCount: screening.readiness.missing.length }],
     submittedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

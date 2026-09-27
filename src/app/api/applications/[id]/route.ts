@@ -24,7 +24,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
   const policy = getPolicy(app.hospitalId)!;
   const body = (await request.json()) as Action;
   const now = new Date();
-  const next: Application = { ...app, requests: app.requests ?? [], updatedAt: now.toISOString() };
+  const next: Application = { ...app, requests: app.requests ?? [], events: app.events ?? [], updatedAt: now.toISOString() };
 
   switch (body.action) {
     case "request_info": {
@@ -35,6 +35,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
       next.requests = [...next.requests, { docIds: body.docIds, message: body.message, at: now.toISOString(), dueBy: due.toISOString() }];
       if (body.message.trim()) next.messages = [...app.messages, { from: "counselor", text: body.message.trim(), at: now.toISOString() }];
       next.status = "info_requested";
+      next.events = [...next.events, { type: "info_requested", at: now.toISOString() }];
       break;
     }
     case "respond": {
@@ -42,6 +43,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
       if (body.message?.trim()) next.messages = [...app.messages, { from: "patient", text: body.message.trim(), at: now.toISOString() }];
       next.requests = next.requests.map((r) => (r.resolvedAt ? r : { ...r, resolvedAt: now.toISOString() }));
       next.status = "responded";
+      next.events = [...next.events, { type: "responded", at: now.toISOString() }];
       break;
     }
     case "set_medicaid":
@@ -49,6 +51,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
       break;
     case "mark_in_review":
       next.status = "in_review";
+      next.events = [...next.events, { type: "in_review", at: now.toISOString() }];
       break;
     default:
       return Response.json({ error: "Unknown action" }, { status: 400 });

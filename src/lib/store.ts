@@ -17,6 +17,12 @@ export interface InfoRequest {
   resolvedAt?: string;
 }
 
+export interface AppEvent {
+  type: "submitted" | "info_requested" | "responded" | "in_review";
+  at: string;
+  missingCount?: number;
+}
+
 export interface Application {
   id: string;
   hospitalId: string;
@@ -29,8 +35,10 @@ export interface Application {
   status: AppStatus;
   messages: Message[];
   requests: InfoRequest[];
+  events: AppEvent[];
   submittedAt: string;
   updatedAt: string;
+  sample?: boolean;
 }
 
 // In-memory for local dev; swap for Supabase so the phone and laptop share data when deployed.
@@ -44,6 +52,10 @@ export function saveApplication(app: Application): Application {
 
 export function getApplication(id: string): Application | undefined {
   return applications.get(id);
+}
+
+export function deleteSampleApplications() {
+  for (const [id, app] of applications) if (app.sample) applications.delete(id);
 }
 
 export function listApplications(): Application[] {
