@@ -1,16 +1,24 @@
+import { unauthorized } from "@/lib/access";
+import { getCounselor } from "@/lib/auth";
 import { getPolicy } from "@/lib/policies";
 import { medicaidProgram } from "@/lib/programs";
 import { buildSampleApplications } from "@/lib/sample-data";
-import { deleteSampleApplications, saveApplication } from "@/lib/store";
+import { deleteSampleApplications, insertApplications } from "@/lib/store";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST() {
-  deleteSampleApplications();
-  const apps = buildSampleApplications(getPolicy("umms")!, 24, new Date(), medicaidProgram);
-  apps.forEach(saveApplication);
+  const counselor = await getCounselor();
+  if (!counselor) return unauthorized();
+  const db = await createClient();
+  await deleteSampleApplications(db, counselor.hospitalId);
+  const apps = buildSampleApplications(getPolicy(counselor.hospitalId)!, 24, new Date(), medicaidProgram);
+  await insertApplications(db, apps);
   return Response.json({ added: apps.length });
 }
 
 export async function DELETE() {
-  deleteSampleApplications();
+  const counselor = await getCounselor();
+  if (!counselor) return unauthorized();
+  await deleteSampleApplications(await createClient(), counselor.hospitalId);
   return Response.json({ ok: true });
 }

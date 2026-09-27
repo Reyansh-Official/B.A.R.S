@@ -46,7 +46,8 @@ export default function Review({ policy, state, update, next, back }: StepProps)
     });
     setSending(false);
     if (!res.ok) return setError("Couldn't send. Please try again.");
-    update({ applicationId: (await res.json()).id });
+    const { id, accessToken } = await res.json();
+    update({ applicationId: id, accessToken });
     next();
   };
 

@@ -8,13 +8,16 @@ import Thread from "@/components/Thread";
 import { Badge, Card, money } from "@/components/ui";
 import { counselorStatus } from "@/lib/status";
 import { getPolicy } from "@/lib/policies";
+import { requireCounselor } from "@/lib/auth";
 import { getApplication } from "@/lib/store";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function ApplicationPacket({ params }: PageProps<"/counselor/[id]">) {
   await connection();
   const { id } = await params;
-  const app = getApplication(id);
-  if (!app) notFound();
+  const counselor = await requireCounselor(`/counselor/${id}`);
+  const app = (await getApplication(await createClient(), id))?.app;
+  if (!app || app.hospitalId !== counselor.hospitalId) notFound();
   const { screening: s } = app;
   const signatures = s.readiness.documents.filter((d) => d.id.includes("signature"));
   const requestable = s.readiness.documents

@@ -10,8 +10,27 @@ npm run dev     # http://localhost:3000
 npm test        # rules engine against the demo cases
 ```
 
-- Patient flow (phone-sized): `/h/umms`. Use the "Demo patient…" menu to load Maria, James, or Aisha.
-- Counselor dashboard (desktop): `/counselor`
+- Patient flow (phone-sized): `/h/umms`. Use the "Demo…" menu to load Maria, James, or Aisha.
+- Counselor dashboard (desktop): `/counselor` (sign-in required)
+
+### Supabase setup (once)
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Copy `.env.example` to `.env.local` and fill in the Supabase URL, publishable key, and secret key (Project Settings -> API Keys).
+3. In the Supabase SQL editor, run [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+4. In Authentication -> Sign In / Providers, turn off "Allow new users to sign up" (counselors are added by an admin, not self-registered).
+5. Add a counselor account (prompts for a password):
+
+```bash
+npm run add-counselor -- you@hospital.org umms
+```
+
+## Security model
+
+- **Counselors** sign in with Supabase Auth (email and password). An account also needs a row in `public.counselors`, which ties it to one hospital. `src/proxy.ts` refreshes sessions and redirects signed-out visitors; pages and API routes check the counselor again with `getClaims()`.
+- **Row-level security** in Postgres limits counselors to their own hospital's applications, even if app code has a bug. Anonymous visitors have no table access.
+- **Patients** don't have accounts. Submitting returns a random key that is part of their private status link (`/h/umms/a/<id>?t=<key>`). Only its SHA-256 hash is stored; the server checks it before acting for the patient with the secret key.
+- Still to do before real patients: move uploaded files to a private Supabase Storage bucket (they are currently stored inside the application record), rate-limit the bill-reading endpoints, and add MFA for counselors.
 
 ## How it works
 
@@ -31,7 +50,7 @@ Three independent answers for every patient:
 | `docs/policy-research.md` | Plain-language rules with page citations and sources |
 | `demo-cases/` | Three synthetic patients, expected results, and bills (HTML/PDF/PNG) |
 | `src/lib/rules.ts` | Rules engine (pure functions, tested in `rules.test.ts`) |
-| `src/lib/store.ts` | In-memory application store (swap for Supabase to share across devices) |
+| `src/lib/store.ts` | Application storage in Supabase Postgres (schema in `supabase/migrations/`) |
 | `src/components/patient/steps/` | One file per patient screen |
 | `src/app/counselor/` | Counselor queue and packet view |
 | `src/app/api/` | `applications` (submit, list, get, and PATCH actions: request info, respond, Medicaid status, in review), `extract` (Claude bill reading) |
@@ -46,6 +65,6 @@ The full demo loop works end to end:
 4. Review the prefilled application and sign (spouse too, if married)
 5. Counselor sees the packet, requests missing items; the patient's status page (`/h/umms/a/<id>`) shows the request, they respond, and the counselor view updates live
 
-Not built for production: sign-in for counselors, secret links for patients, a real database (data lives in server memory), and file storage.
+Not production-ready yet: see the security model above.
 
 All patient data in `demo-cases/` is synthetic.

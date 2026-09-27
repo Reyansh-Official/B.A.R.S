@@ -86,7 +86,7 @@ export function buildSampleApplications(policy: Policy, count = 24, now = new Da
     }
 
     apps.push({
-      id: `sample${String(i).padStart(2, "0")}`,
+      id: `sample-${policy.id}-${String(i).padStart(2, "0")}`,
       hospitalId: policy.id,
       patient: { name: `${pick(first)} ${pick(last)}`, dob: "", address: "", phone: "" },
       bills, answers, docs, medicaidStatus, screening, status,

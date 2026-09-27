@@ -20,6 +20,7 @@ export interface FlowState {
   docs: Record<string, DocState>;
   medicaidStatus: MedicaidScreening;
   applicationId?: string;
+  accessToken?: string;
   prefilled?: boolean;
   answered?: string[];
 }

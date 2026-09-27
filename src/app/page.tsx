@@ -1,5 +1,6 @@
 import { ArrowRight, BadgeCheck, Camera, FileCheck2, HeartHandshake, ListChecks, ScrollText, Send, Stethoscope } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import QRCode from "qrcode";
 import { getPolicy } from "@/lib/policies";
 import { publicUrl } from "@/lib/site-url";
@@ -17,7 +18,9 @@ const answers = [
   { icon: FileCheck2, q: "Is my application ready?", a: "Exactly what's still missing, what's accepted instead, and a pre-check of every upload before a counselor sees it." },
 ];
 
-export default async function Home() {
+export default async function Home({ searchParams }: PageProps<"/">) {
+  // Supabase sends failed OAuth attempts back to the site URL; show the error on the sign-in page instead.
+  if ((await searchParams).error_code) redirect("/login?error=oauth");
   const policy = getPolicy("umms")!;
   const { url, lan } = await publicUrl("/h/umms");
   const qr = await QRCode.toString(url, { type: "svg", margin: 1, color: { dark: "#0f172a", light: "#ffffff" } });

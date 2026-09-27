@@ -13,8 +13,9 @@ const stages = [
   { id: "in_review", label: "Complete and being reviewed" },
 ] as const;
 
-export default function ApplicationStatus({ id, policy }: { id: string; policy: Policy }) {
+export default function ApplicationStatus({ id, token, policy }: { id: string; token: string; policy: Policy }) {
   const [app, setApp] = useState<Application | null>(null);
+  const [denied, setDenied] = useState(false);
   const [changes, setChanges] = useState<Record<string, DocState | undefined>>({});
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
@@ -22,14 +23,23 @@ export default function ApplicationStatus({ id, policy }: { id: string; policy: 
   useEffect(() => {
     let alive = true;
     const load = async () => {
-      const res = await fetch(`/api/applications/${id}`, { cache: "no-store" });
-      if (res.ok && alive) setApp(await res.json());
+      const res = await fetch(`/api/applications/${id}`, { cache: "no-store", headers: { "x-access-token": token } });
+      if (!alive) return;
+      if (res.ok) setApp(await res.json());
+      else if (res.status === 401) setDenied(true);
     };
     load();
     const t = setInterval(load, 3000);
     return () => { alive = false; clearInterval(t); };
-  }, [id]);
+  }, [id, token]);
 
+  if (denied) {
+    return (
+      <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+        This link isn&apos;t valid. Use the private link you got after sending your application, or call {policy.contact.phone}.
+      </p>
+    );
+  }
   if (!app) return <p className="text-slate-500">Loading your application…</p>;
 
   const open = app.status === "info_requested" ? (app.requests ?? []).findLast((r) => !r.resolvedAt) : undefined;
@@ -50,7 +60,7 @@ export default function ApplicationStatus({ id, policy }: { id: string; policy: 
     const docs = Object.fromEntries(Object.entries(changes).filter(([, v]) => v)) as Record<string, DocState>;
     const res = await fetch(`/api/applications/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-access-token": token },
       body: JSON.stringify({ action: "respond", docs, message: reply }),
     });
     setSending(false);

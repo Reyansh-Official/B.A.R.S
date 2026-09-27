@@ -4,13 +4,16 @@ import AutoRefresh from "@/components/AutoRefresh";
 import SampleDataControls from "@/components/counselor/SampleDataControls";
 import { Badge, money } from "@/components/ui";
 import { counselorStatus } from "@/lib/status";
+import { requireCounselor } from "@/lib/auth";
 import { listApplications } from "@/lib/store";
+import { createClient } from "@/lib/supabase/server";
 
 const readinessTone = { ready: "good", missing_info: "warn", counselor_review: "info" } as const;
 
 export default async function CounselorDashboard() {
   await connection();
-  const apps = listApplications();
+  const counselor = await requireCounselor("/counselor");
+  const apps = await listApplications(await createClient(), counselor.hospitalId);
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-8">
       <AutoRefresh />

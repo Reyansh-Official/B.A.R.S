@@ -5,7 +5,9 @@ import SampleDataControls from "@/components/counselor/SampleDataControls";
 import { computeMetrics } from "@/lib/metrics";
 import { counselorStatus } from "@/lib/status";
 import type { AppStatus } from "@/lib/store";
+import { requireCounselor } from "@/lib/auth";
 import { listApplications } from "@/lib/store";
+import { createClient } from "@/lib/supabase/server";
 
 // Categorical slots 1-4 of the validated reference palette, in fixed order (adjacent pairs pass CVD checks).
 const statusColor: Record<AppStatus, string> = {
@@ -38,7 +40,8 @@ const hours = (h: number | null) => (h == null ? "–" : h < 48 ? `${Math.round(
 
 export default async function ImpactPage() {
   await connection();
-  const m = computeMetrics(listApplications());
+  const counselor = await requireCounselor("/counselor/impact");
+  const m = computeMetrics(await listApplications(await createClient(), counselor.hospitalId));
   const maxReason = Math.max(1, ...m.followUpReasons.map((r) => r.count));
 
   return (
