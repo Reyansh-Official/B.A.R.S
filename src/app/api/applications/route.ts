@@ -1,7 +1,9 @@
 import { randomBytes } from "node:crypto";
 import { hashToken, newAccessToken, unauthorized } from "@/lib/access";
 import { getCounselor } from "@/lib/auth";
+import { after } from "next/server";
 import { getPolicy } from "@/lib/policies";
+import { optIn } from "@/lib/reminders";
 import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
 import { insertApplications, listApplications, type Application } from "@/lib/store";
@@ -43,5 +45,9 @@ export async function POST(request: Request) {
   // Patients are anonymous, so the insert uses the secret key; only a hash of their private key is stored.
   const accessToken = newAccessToken();
   await insertApplications(createAdminClient(), [app], hashToken(accessToken), policyId);
+  if (body.textReminders && app.patient?.phone) {
+    const base = process.env.BARS_PUBLIC_URL ?? new URL(request.url).origin;
+    after(() => optIn(app, app.patient.phone, `${base}/h/${app.hospitalId}/a/${app.id}?t=${accessToken}`).catch((e) => console.error("Reminder opt-in failed", e)));
+  }
   return Response.json({ id: app.id, accessToken }, { status: 201 });
 }

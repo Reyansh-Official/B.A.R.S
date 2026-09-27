@@ -48,6 +48,14 @@ Useful commands: `npm run seed-policies` (load hand-verified policies), `npm run
 
 Patients can ask questions in any language from any screen. Answers are grounded in that hospital's approved policy PDF (Claude Sonnet 5 with citations), and each claim links to its page; hovering shows the policy's exact wording. It explains but never decides eligibility. The policy document is prompt-cached: the first question in a 5-minute window costs about $0.10, follow-ups about $0.01. Limited to 20 questions per visitor per hour and 500 characters per question (`src/app/api/ask`, `src/lib/ask.ts`).
 
+## Text reminders
+
+Patients can opt in on the Review step (unchecked by default). They get a welcome text, a text when the counselor asks for more information, warnings 7 and 2 days before that deadline and before the Medicaid apply-by date, and a text when review starts. Each reminder is sent at most once, and a late run sends only the most urgent one.
+
+- Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM_NUMBER` to send real texts. For a demo on a Mac, `SMS_PROVIDER=messages` sends through the Messages app instead (SMS via iPhone relay, else iMessage). With neither, reminders are only previewed at `/admin/outbox`.
+- Run the daily sweep with `npm run send-reminders` (cron or any scheduler; it uses `BARS_CRON_SECRET`).
+- Phone numbers and status links are encrypted with `BARS_ENCRYPTION_KEY` (AES-256-GCM); the Outbox shows only the last 4 digits and hides the link.
+
 ## Security model
 
 - **Counselors** sign in with Supabase Auth (email and password). An account also needs a row in `public.counselors`, which ties it to one hospital. `src/proxy.ts` refreshes sessions and redirects signed-out visitors; pages and API routes check the counselor again with `getClaims()`.

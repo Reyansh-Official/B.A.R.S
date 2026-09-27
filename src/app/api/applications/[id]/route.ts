@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { tokenMatches, unauthorized } from "@/lib/access";
 import { getCounselor } from "@/lib/auth";
+import { after } from "next/server";
 import { getPolicy } from "@/lib/policies";
+import { sendDue } from "@/lib/reminders";
 import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
 import { getApplication, updateApplication, type Application } from "@/lib/store";
@@ -78,5 +80,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/applicatio
   }
 
   next.screening = screen(policy, next.bills, next.answers, next.docs, next.medicaidStatus, { medicaid: medicaidProgram, patientAge: ageFromDob(next.patient.dob) });
-  return Response.json(await updateApplication(db, next));
+  const saved = await updateApplication(db, next);
+  if (body.action === "request_info" || body.action === "mark_in_review") after(() => sendDue(saved).then(() => {}, (e) => console.error("Reminder send failed", e)));
+  return Response.json(saved);
 }

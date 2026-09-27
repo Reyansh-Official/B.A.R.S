@@ -19,6 +19,7 @@ export default function Review({ policy, primaryBills, groups, state, update, ne
   const [error, setError] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [spouseName, setSpouseName] = useState("");
+  const [texts, setTexts] = useState(false);
   const { patient, answers } = state;
   const screening = screen(policy, primaryBills, answers, state.docs, state.medicaidStatus);
   const today = new Date().toLocaleDateString();
@@ -46,7 +47,7 @@ export default function Review({ policy, primaryBills, groups, state, update, ne
       const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...state, hospitalId: g.hospitalId, bills: g.bills }),
+        body: JSON.stringify({ ...state, hospitalId: g.hospitalId, bills: g.bills, textReminders: texts }),
       });
       if (!res.ok) {
         setSending(false);
@@ -116,6 +117,17 @@ export default function Review({ policy, primaryBills, groups, state, update, ne
             </>
           )}
         </div>
+      </Card>
+
+      <Card>
+        <label className="flex gap-3 text-sm text-slate-700">
+          <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-teal-700" checked={texts} disabled={!patient.phone} onChange={(e) => setTexts(e.target.checked)} />
+          <span>
+            <span className="font-semibold text-slate-900">Text me deadline reminders{patient.phone ? ` at ${patient.phone}` : ""}</span> (optional)
+            <br />
+            {patient.phone ? "We'll text you if the hospital asks for more information and a few days before any deadline. About 1–6 messages per application. Msg & data rates may apply. Reply STOP to opt out." : "Add your phone number above to get text reminders."}
+          </span>
+        </label>
       </Card>
 
       {!ready && (

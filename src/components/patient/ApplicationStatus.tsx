@@ -5,6 +5,7 @@ import Thread from "@/components/Thread";
 import { Button, Card } from "@/components/ui";
 import type { Application } from "@/lib/store";
 import type { DocState, Policy } from "@/lib/types";
+import CalendarButton from "./CalendarButton";
 import { DocCard } from "./steps/Documents";
 
 const stages = [
@@ -90,6 +91,7 @@ export default function ApplicationStatus({ id, token, policy }: { id: string; t
         <Card className="border-amber-300">
           <h2 className="font-semibold">Your counselor needs a few things</h2>
           <p className="mt-1 text-sm text-slate-600">Please respond by {new Date(open.dueBy).toLocaleDateString()}. You can reply by phone too.</p>
+          <div className="mt-2"><CalendarButton date={open.dueBy} title={`Send documents to ${policy.name}`} details={`Your financial assistance counselor asked for more information. Respond here: ${typeof window === "undefined" ? "" : window.location.href}`} /></div>
         </Card>
       )}
 

@@ -273,7 +273,7 @@ const questions: Question[] = [
 ];
 
 export default function Questions({ state, update, next, back, policy }: StepProps) {
-  const s: QState = { ...state, policyPresumptive: policy.presumptive_eligibility.qualifying.map((q) => q.id) };
+  const s: QState = { ...state, policyPresumptive: [...new Set(policy.presumptive_eligibility.qualifying.map((q) => q.id))] };
   const visible = questions.filter((q) => !q.show || q.show(state));
   const [index, setIndex] = useState(0);
   const q = visible[Math.min(index, visible.length - 1)];

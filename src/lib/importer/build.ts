@@ -71,7 +71,10 @@ export function buildPolicy({ hospitalId, extracted: x, fpl, sources }: BuildInp
     },
     presumptive_eligibility: {
       result: x.presumptive.result,
-      qualifying: x.presumptive.programs.map((p) => ({ id: p.id ?? slugify(p.label), label: p.label })),
+      // Several listed programs can map to the same known id (e.g. two Medicaid variants); keep the first.
+      qualifying: x.presumptive.programs
+        .map((p) => ({ id: p.id ?? slugify(p.label), label: p.label }))
+        .filter((q, i, all) => all.findIndex((o) => o.id === q.id) === i),
       source: x.presumptive.source,
     },
     documents: x.documents.map((d) => ({

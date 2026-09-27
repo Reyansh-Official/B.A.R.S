@@ -5,6 +5,7 @@ import { ageFromDob, medicaidProgram } from "@/lib/programs";
 import { screen } from "@/lib/rules";
 import type { Bill, Screening } from "@/lib/types";
 import type { StepProps } from "../PatientFlow";
+import CalendarButton from "../CalendarButton";
 import Nav from "./Nav";
 
 type Tone = "good" | "warn" | "info";
@@ -87,6 +88,7 @@ function MedicaidCard({ m, bills }: { m: NonNullable<Screening["medicaid"]>; bil
       {m.applyBy && (
         <p className="mt-4 rounded-xl bg-white p-3 text-sm font-semibold text-violet-900">
           Apply by {fmtDate(m.applyBy)} so Medicaid can cover your {fmtDate(covered[0]?.serviceDate ?? m.applyBy)} visit.
+          <span className="mt-2 block font-normal"><CalendarButton date={m.applyBy} title="Apply for Maryland Medicaid" details="Apply at marylandhealthconnection.gov or call 1-855-642-8572 so Medicaid can cover your hospital visit." /></span>
         </p>
       )}
       {m.childrenMayQualify && (
